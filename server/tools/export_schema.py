@@ -24,13 +24,13 @@ OUT = Path(__file__).resolve().parent.parent / "schema"
 def main() -> None:
     OUT.mkdir(exist_ok=True)
     app = create_app(Settings(admin_token="schema-export"))
-    (OUT / "openapi.json").write_text(json.dumps(app.openapi(), ensure_ascii=False, indent=2))
+    (OUT / "openapi.json").write_text(json.dumps(app.openapi(), ensure_ascii=False, indent=2), encoding="utf-8")
     live = TypeAdapter(LiveMessage).json_schema(by_alias=True, mode="serialization")
-    (OUT / "live.json").write_text(json.dumps(live, ensure_ascii=False, indent=2))
+    (OUT / "live.json").write_text(json.dumps(live, ensure_ascii=False, indent=2), encoding="utf-8")
     # json2ts берёт типы из корня схемы, поэтому собираем нужные модели в одно объединение
     rest = TypeAdapter(AuthStatus | CommandCreate | list[CommandView] | Stats | SetupInfo | SetupRequest | WifiUpdateRequest).json_schema(by_alias=True, mode="serialization")
     rest["title"] = "Rest"
-    (OUT / "rest.json").write_text(json.dumps(rest, ensure_ascii=False, indent=2))
+    (OUT / "rest.json").write_text(json.dumps(rest, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"written to {OUT}")
 
 

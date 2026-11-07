@@ -27,10 +27,10 @@ def admin_token(data: Path) -> str:
     """Токен создаётся при первом запуске и хранится рядом с базой."""
     path = data / "admin-token.txt"
     if path.exists():
-        return path.read_text().strip()
+        return path.read_text(encoding="utf-8").strip()
     token = secrets.token_hex(24)
     path.touch(mode=0o600)
-    path.write_text(token)
+    path.write_text(token, encoding="utf-8")
     return token
 
 

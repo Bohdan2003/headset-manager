@@ -21,6 +21,8 @@ admin-token.txt
 local.properties
 .kotlin/
 .pytest_cache/
+__pycache__/
+*.pyc
 *.log
 quest_report.txt
 build/

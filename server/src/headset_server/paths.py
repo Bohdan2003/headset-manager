@@ -50,13 +50,13 @@ def agent_apk() -> Path:
 def bundled_agent() -> tuple[str, int]:
     """Версия агента, которую поставит программа: (versionName, versionCode)."""
     if PACKAGED:
-        info = json.loads((resource_dir() / "agent" / "version.json").read_text())
+        info = json.loads((resource_dir() / "agent" / "version.json").read_text(encoding="utf-8"))
         return info["name"], info["code"]
     return read_gradle_version(_REPO / "agent" / "app" / "build.gradle.kts")
 
 
 def read_gradle_version(path: Path) -> tuple[str, int]:
-    text = path.read_text()
+    text = path.read_text(encoding="utf-8")
     name = re.search(r'versionName = "([^"]+)"', text)
     code = re.search(r"versionCode = (\d+)", text)
     if not name or not code:

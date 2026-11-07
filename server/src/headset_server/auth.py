@@ -31,7 +31,7 @@ class Auth:
 
     def _read(self) -> dict[str, str] | None:
         try:
-            return json.loads(self._path.read_text())
+            return json.loads(self._path.read_text(encoding="utf-8"))
         except (FileNotFoundError, ValueError):
             return None
 
@@ -47,7 +47,7 @@ class Auth:
             "secret": secrets.token_hex(32),  # новый секрет: старые сессии перестают действовать
         }
         self._path.touch(mode=0o600)
-        self._path.write_text(json.dumps(data))
+        self._path.write_text(json.dumps(data), encoding="utf-8")
 
     def reset(self) -> None:
         self._path.unlink(missing_ok=True)

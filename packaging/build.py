@@ -42,7 +42,7 @@ def build_agent() -> None:
     PREBUILT.mkdir(exist_ok=True)
     shutil.copy(ROOT / "agent/app/build/outputs/apk/debug/app-debug.apk", PREBUILT / "agent.apk")
     name, code = read_gradle_version(ROOT / "agent/app/build.gradle.kts")
-    (PREBUILT / "version.json").write_text(json.dumps({"name": name, "code": code}))
+    (PREBUILT / "version.json").write_text(json.dumps({"name": name, "code": code}), encoding="utf-8")
 
 
 def check_prebuilt_agent() -> None:
@@ -52,7 +52,7 @@ def check_prebuilt_agent() -> None:
     if not (PREBUILT / "agent.apk").exists():
         raise SystemExit("packaging/prebuilt/agent.apk is missing: build on the Mac first")
     name, code = read_gradle_version(ROOT / "agent/app/build.gradle.kts")
-    built = json.loads((PREBUILT / "version.json").read_text())
+    built = json.loads((PREBUILT / "version.json").read_text(encoding="utf-8"))
     if (built["name"], built["code"]) != (name, code):
         raise SystemExit(
             f"packaging/prebuilt/agent.apk is {built['name']}, the code is {name}: rebuild it on the Mac"

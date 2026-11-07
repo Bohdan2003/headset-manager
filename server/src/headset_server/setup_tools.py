@@ -244,7 +244,7 @@ class SetupJobs:
         env.pop("ADB_VENDOR_KEYS", None)
         try:
             await adb("keygen", str(android_home / "adbkey"))
-            pub = (android_home / "adbkey.pub").read_text().split()[0]
+            pub = (android_home / "adbkey.pub").read_text(encoding="utf-8").split()[0]
             await adb("kill-server")
             await adb("start-server", env=env)
 
