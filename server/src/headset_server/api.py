@@ -81,7 +81,7 @@ async def auth_setup(body: AuthRequest, request: Request, response: Response) ->
     if auth.configured:
         raise HTTPException(status.HTTP_409_CONFLICT, "password is already set")
     if len(body.password) < MIN_PASSWORD:
-        raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, f"at least {MIN_PASSWORD} characters")
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, f"at least {MIN_PASSWORD} characters")
     await asyncio.to_thread(auth.set_password, body.password)
     _set_cookie(response, auth.make_session())
 
@@ -253,4 +253,7 @@ async def update_over_wifi(body: WifiUpdateRequest, request: Request) -> list[Co
 @router.get("/api/agent/apk")
 async def agent_apk() -> FileResponse:
     """В APK нет секретов, а поставить его можно только поверх агента с той же подписью."""
-    return FileResponse(paths.agent_apk(), media_type="application/vnd.android.package-archive")
+    apk = paths.agent_apk()
+    if not apk.is_file():
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "agent apk is not built")
+    return FileResponse(apk, media_type="application/vnd.android.package-archive")

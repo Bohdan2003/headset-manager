@@ -4,5 +4,6 @@ local.properties
 *.apk
 # ключи никогда не коммитим
 adbkey*
+!AdbKey.kt
 *.pem
 *.der
