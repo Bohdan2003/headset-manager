@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- Обычное право: закрыть процессы приложения, ушедшего в фон (без shell) -->
+    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
+    <!-- Системное право: выдаётся один раз через `pm grant`, обычной установкой не даётся -->
+    <uses-permission
+        android:name="android.permission.WRITE_SECURE_SETTINGS"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- Android 11+: без этого приложение не видит другие приложения и не может их запустить -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
+    <application
+        android:label="ADB Probe"
+        android:allowBackup="false">
+
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Команды с компьютера для проверок. Защищено DUMP: отправить может shell -->
+        <receiver
+            android:name=".ControlReceiver"
+            android:exported="true"
+            android:permission="android.permission.DUMP">
+            <intent-filter>
+                <action android:name="com.arena.adbprobe.PROVISION" />
+                <action android:name="com.arena.adbprobe.RUN" />
+                <action android:name="com.arena.adbprobe.KILL_BG" />
+                <action android:name="com.arena.adbprobe.SLEEP" />
+                <action android:name="com.arena.adbprobe.LAUNCH" />
+                <action android:name="com.arena.adbprobe.GUARD" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".ProbeService"
+            android:exported="false" />
+
+        <service
+            android:name=".DialogClickerService"
+            android:exported="true"
+            android:label="ADB Probe: wireless debugging dialog"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_config" />
+        </service>
+    </application>
+</manifest>

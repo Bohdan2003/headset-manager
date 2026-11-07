@@ -1,0 +1,8 @@
+.gradle/
+build/
+local.properties
+*.apk
+# ключи никогда не коммитим
+adbkey*
+*.pem
+*.der

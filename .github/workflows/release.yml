@@ -1,0 +1,66 @@
+# Сборка программы Arena. Тег v* — архивы в Releases; запуск вручную — только архивы на странице запуска.
+name: Build Arena
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+env:
+  # На GitHub нет ключа подписи: агент берём готовый, из packaging/prebuilt
+  ARENA_PREBUILT_AGENT: "1"
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            archive: Arena-mac.zip
+          - os: windows-latest
+            archive: Arena-windows.zip
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: adb для Mac
+        if: runner.os == 'macOS'
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/tools.zip" https://dl.google.com/android/repository/platform-tools-latest-darwin.zip
+          unzip -q "$RUNNER_TEMP/tools.zip" -d "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/platform-tools" >> "$GITHUB_PATH"
+      - name: Сборка
+        working-directory: server
+        run: uv run python ../packaging/build.py
+      - name: Архив Mac
+        if: runner.os == 'macOS'
+        # ditto, а не zip: внутри .app есть символические ссылки
+        run: ditto -c -k --keepParent dist/Arena.app "${{ matrix.archive }}"
+      - name: Архив Windows
+        if: runner.os == 'Windows'
+        run: Compress-Archive -Path dist/Arena -DestinationPath "${{ matrix.archive }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.archive }}
+          path: ${{ matrix.archive }}
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+      - run: gh release create "$GITHUB_REF_NAME" Arena-mac.zip Arena-windows.zip --repo "$GITHUB_REPOSITORY" --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}

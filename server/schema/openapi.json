@@ -1,0 +1,1702 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Headset Manager",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/auth/status": {
+      "get": {
+        "summary": "Auth Status",
+        "operationId": "auth_status_api_auth_status_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/setup": {
+      "post": {
+        "summary": "Auth Setup",
+        "description": "Первый запуск: пароль задаётся только с компьютера-сервера и только если его ещё нет.",
+        "operationId": "auth_setup_api_auth_setup_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "summary": "Auth Login",
+        "operationId": "auth_login_api_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "summary": "Auth Logout",
+        "operationId": "auth_logout_api_auth_logout_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Health Health Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/headsets": {
+      "get": {
+        "summary": "List Headsets",
+        "operationId": "list_headsets_api_headsets_get",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/HeadsetView"
+                  },
+                  "title": "Response List Headsets Api Headsets Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Register Headset",
+        "description": "Регистрация шлема из provision.sh. Если шлем с таким серийным номером уже есть\n(например, после сброса к заводским), запись сохраняется, а токен выдаётся новый.",
+        "operationId": "register_headset_api_headsets_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HeadsetCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HeadsetCredentials"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/headsets/{headset_id}": {
+      "patch": {
+        "summary": "Rename Headset",
+        "description": "Новое название шлема; дашборды получают его через /live.",
+        "operationId": "rename_headset_api_headsets__headset_id__patch",
+        "parameters": [
+          {
+            "name": "headset_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Headset Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HeadsetRename"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/commands": {
+      "post": {
+        "summary": "Create Commands",
+        "description": "Одна команда нескольким шлемам. Ответ — по команде на шлем со статусом sent\n(или failed/offline). Дальнейшие изменения статуса приходят дашборду через /live.",
+        "operationId": "create_commands_api_commands_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CommandView"
+                  },
+                  "title": "Response Create Commands Api Commands Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/stats": {
+      "get": {
+        "summary": "Get Stats",
+        "description": "Статистика за сегодня / 7 / 30 дней (от местной полуночи).",
+        "operationId": "get_stats_api_stats_get",
+        "parameters": [
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "today",
+                "7d",
+                "30d"
+              ],
+              "type": "string",
+              "default": "today",
+              "title": "Period"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Stats"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/setup": {
+      "get": {
+        "summary": "Setup Info",
+        "operationId": "setup_info_api_setup_get",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetupInfo"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/setup/jobs": {
+      "post": {
+        "summary": "Setup Job",
+        "operationId": "setup_job_api_setup_jobs_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetupRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetupJob"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/setup/update-wifi": {
+      "post": {
+        "summary": "Update Over Wifi",
+        "description": "Агенты сами скачают новую версию с этого сервера и установят её через локальный ADB.",
+        "operationId": "update_over_wifi_api_setup_update_wifi_post",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "",
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WifiUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CommandView"
+                  },
+                  "title": "Response Update Over Wifi Api Setup Update Wifi Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/agent/apk": {
+      "get": {
+        "summary": "Agent Apk",
+        "description": "В APK нет секретов, а поставить его можно только поверх агента с той же подписью.",
+        "operationId": "agent_apk_api_agent_apk_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AppInfo": {
+        "properties": {
+          "package": {
+            "type": "string",
+            "title": "Package"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "vr": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vr"
+          }
+        },
+        "type": "object",
+        "required": [
+          "package",
+          "title",
+          "vr"
+        ],
+        "title": "AppInfo"
+      },
+      "AuthRequest": {
+        "properties": {
+          "password": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "password"
+        ],
+        "title": "AuthRequest"
+      },
+      "AuthStatus": {
+        "properties": {
+          "configured": {
+            "type": "boolean",
+            "title": "Configured"
+          },
+          "authenticated": {
+            "type": "boolean",
+            "title": "Authenticated"
+          },
+          "canSetup": {
+            "type": "boolean",
+            "title": "Cansetup"
+          }
+        },
+        "type": "object",
+        "required": [
+          "configured",
+          "authenticated",
+          "canSetup"
+        ],
+        "title": "AuthStatus"
+      },
+      "CommandCreate": {
+        "properties": {
+          "headsetIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 200,
+            "minItems": 1,
+            "title": "Headsetids"
+          },
+          "cmd": {
+            "type": "string",
+            "enum": [
+              "launch",
+              "show_menu",
+              "set_sleep",
+              "guard",
+              "close_game",
+              "restart_game",
+              "reboot",
+              "sleep",
+              "power_off",
+              "request_access",
+              "update_agent"
+            ],
+            "title": "Cmd"
+          },
+          "params": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Params"
+          },
+          "ttlS": {
+            "type": "integer",
+            "maximum": 60.0,
+            "minimum": 1.0,
+            "title": "Ttls",
+            "default": 10
+          }
+        },
+        "type": "object",
+        "required": [
+          "headsetIds",
+          "cmd"
+        ],
+        "title": "CommandCreate",
+        "description": "Запрос дашборда: одна команда нескольким шлемам."
+      },
+      "CommandView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "headsetId": {
+            "type": "string",
+            "title": "Headsetid"
+          },
+          "cmd": {
+            "type": "string",
+            "enum": [
+              "launch",
+              "show_menu",
+              "set_sleep",
+              "guard",
+              "close_game",
+              "restart_game",
+              "reboot",
+              "sleep",
+              "power_off",
+              "request_access",
+              "update_agent"
+            ],
+            "title": "Cmd"
+          },
+          "params": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Params"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "sent",
+              "acked",
+              "failed",
+              "timeout"
+            ],
+            "title": "Status"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "offline",
+                  "asleep",
+                  "timeout",
+                  "no_adb",
+                  "not_allowed",
+                  "failed",
+                  "expired",
+                  "bad_params"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Createdat"
+          },
+          "ackedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ackedat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "headsetId",
+          "cmd",
+          "params",
+          "status",
+          "reason",
+          "detail",
+          "createdAt",
+          "ackedAt"
+        ],
+        "title": "CommandView",
+        "description": "Команда одному шлему и её судьба."
+      },
+      "ControllerInfo": {
+        "properties": {
+          "side": {
+            "type": "string",
+            "enum": [
+              "left",
+              "right"
+            ],
+            "title": "Side"
+          },
+          "battery": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Battery"
+          },
+          "connected": {
+            "type": "boolean",
+            "title": "Connected"
+          }
+        },
+        "type": "object",
+        "required": [
+          "side",
+          "battery",
+          "connected"
+        ],
+        "title": "ControllerInfo"
+      },
+      "FleetHeadset": {
+        "properties": {
+          "headsetId": {
+            "type": "string",
+            "title": "Headsetid"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "online": {
+            "type": "boolean",
+            "title": "Online"
+          },
+          "agentVersion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agentversion"
+          },
+          "adb": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "ready",
+                  "no_wifi",
+                  "waiting_confirmation",
+                  "connecting",
+                  "key_missing",
+                  "key_rejected",
+                  "error"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Adb"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "headsetId",
+          "label",
+          "online",
+          "agentVersion",
+          "adb",
+          "status"
+        ],
+        "title": "FleetHeadset",
+        "description": "Шлем в базе: можно ли обновить его по Wi-Fi."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HeadsetCreate": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Label"
+          },
+          "serial": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Serial"
+          },
+          "androidId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Androidid"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label",
+          "serial"
+        ],
+        "title": "HeadsetCreate"
+      },
+      "HeadsetCredentials": {
+        "properties": {
+          "headsetId": {
+            "type": "string",
+            "title": "Headsetid"
+          },
+          "token": {
+            "type": "string",
+            "title": "Token"
+          },
+          "created": {
+            "type": "boolean",
+            "title": "Created"
+          }
+        },
+        "type": "object",
+        "required": [
+          "headsetId",
+          "token",
+          "created"
+        ],
+        "title": "HeadsetCredentials",
+        "description": "Ответ на регистрацию: это передаётся агенту при настройке. Токен показывается один раз."
+      },
+      "HeadsetRename": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "label"
+        ],
+        "title": "HeadsetRename"
+      },
+      "HeadsetView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "serial": {
+            "type": "string",
+            "title": "Serial"
+          },
+          "online": {
+            "type": "boolean",
+            "title": "Online",
+            "default": false
+          },
+          "battery": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Battery"
+          },
+          "charging": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Charging"
+          },
+          "temp": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temp"
+          },
+          "currentPkg": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currentpkg"
+          },
+          "adb": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "ready",
+                  "no_wifi",
+                  "waiting_confirmation",
+                  "connecting",
+                  "key_missing",
+                  "key_rejected",
+                  "error"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Adb"
+          },
+          "sleepDisabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sleepdisabled"
+          },
+          "agentVersion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agentversion"
+          },
+          "lastSeen": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lastseen"
+          },
+          "guardPkg": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Guardpkg"
+          },
+          "screenOn": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Screenon"
+          },
+          "update": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/UpdateProgress"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "controllers": {
+            "items": {
+              "$ref": "#/components/schemas/ControllerInfo"
+            },
+            "type": "array",
+            "title": "Controllers"
+          },
+          "apps": {
+            "items": {
+              "$ref": "#/components/schemas/AppInfo"
+            },
+            "type": "array",
+            "title": "Apps"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "serial",
+          "online",
+          "battery",
+          "charging",
+          "temp",
+          "currentPkg",
+          "adb",
+          "sleepDisabled",
+          "agentVersion",
+          "lastSeen",
+          "guardPkg",
+          "screenOn",
+          "update",
+          "controllers",
+          "apps"
+        ],
+        "title": "HeadsetView",
+        "description": "Шлем, как его видит дашборд."
+      },
+      "SetupDevice": {
+        "properties": {
+          "adbId": {
+            "type": "string",
+            "title": "Adbid"
+          },
+          "transport": {
+            "type": "string",
+            "enum": [
+              "usb",
+              "wifi"
+            ],
+            "title": "Transport"
+          },
+          "state": {
+            "type": "string",
+            "title": "State"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "bundledVersion": {
+            "type": "string",
+            "title": "Bundledversion"
+          },
+          "serial": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Serial"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "installedVersion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Installedversion"
+          },
+          "permissionsOk": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Permissionsok"
+          },
+          "headsetId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Headsetid"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "adbId",
+          "transport",
+          "state",
+          "status",
+          "bundledVersion",
+          "serial",
+          "model",
+          "installedVersion",
+          "permissionsOk",
+          "headsetId",
+          "label"
+        ],
+        "title": "SetupDevice"
+      },
+      "SetupInfo": {
+        "properties": {
+          "bundledVersion": {
+            "type": "string",
+            "title": "Bundledversion"
+          },
+          "devices": {
+            "items": {
+              "$ref": "#/components/schemas/SetupDevice"
+            },
+            "type": "array",
+            "title": "Devices"
+          },
+          "fleet": {
+            "items": {
+              "$ref": "#/components/schemas/FleetHeadset"
+            },
+            "type": "array",
+            "title": "Fleet"
+          },
+          "job": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SetupJob"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "bundledVersion",
+          "devices",
+          "fleet",
+          "job"
+        ],
+        "title": "SetupInfo"
+      },
+      "SetupJob": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "install",
+              "update",
+              "remove"
+            ],
+            "title": "Kind"
+          },
+          "adbId": {
+            "type": "string",
+            "title": "Adbid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "running",
+              "waiting_user",
+              "done",
+              "failed"
+            ],
+            "title": "Status"
+          },
+          "log": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Log"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "kind",
+          "adbId",
+          "status",
+          "log",
+          "error"
+        ],
+        "title": "SetupJob"
+      },
+      "SetupRequest": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "install",
+              "update",
+              "remove"
+            ],
+            "title": "Kind"
+          },
+          "adbId": {
+            "type": "string",
+            "maxLength": 64,
+            "minLength": 1,
+            "title": "Adbid"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "adbId"
+        ],
+        "title": "SetupRequest"
+      },
+      "Stats": {
+        "properties": {
+          "period": {
+            "type": "string",
+            "enum": [
+              "today",
+              "7d",
+              "30d"
+            ],
+            "title": "Period"
+          },
+          "from": {
+            "type": "string",
+            "format": "date-time",
+            "title": "From"
+          },
+          "to": {
+            "type": "string",
+            "format": "date-time",
+            "title": "To"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/StatsTotals"
+          },
+          "games": {
+            "items": {
+              "$ref": "#/components/schemas/StatsGame"
+            },
+            "type": "array",
+            "title": "Games"
+          },
+          "headsets": {
+            "items": {
+              "$ref": "#/components/schemas/StatsHeadset"
+            },
+            "type": "array",
+            "title": "Headsets"
+          },
+          "days": {
+            "items": {
+              "$ref": "#/components/schemas/StatsDay"
+            },
+            "type": "array",
+            "title": "Days"
+          }
+        },
+        "type": "object",
+        "required": [
+          "period",
+          "from",
+          "to",
+          "totals",
+          "games",
+          "headsets",
+          "days"
+        ],
+        "title": "Stats"
+      },
+      "StatsDay": {
+        "properties": {
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "playS": {
+            "type": "integer",
+            "title": "Plays"
+          }
+        },
+        "type": "object",
+        "required": [
+          "date",
+          "playS"
+        ],
+        "title": "StatsDay"
+      },
+      "StatsGame": {
+        "properties": {
+          "package": {
+            "type": "string",
+            "title": "Package"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "playS": {
+            "type": "integer",
+            "title": "Plays"
+          },
+          "sessions": {
+            "type": "integer",
+            "title": "Sessions"
+          },
+          "avgSessionS": {
+            "type": "integer",
+            "title": "Avgsessions"
+          },
+          "exits": {
+            "type": "integer",
+            "title": "Exits"
+          },
+          "guardReturns": {
+            "type": "integer",
+            "title": "Guardreturns"
+          },
+          "endedByPlayer": {
+            "type": "integer",
+            "title": "Endedbyplayer"
+          },
+          "endedByOperator": {
+            "type": "integer",
+            "title": "Endedbyoperator"
+          }
+        },
+        "type": "object",
+        "required": [
+          "package",
+          "title",
+          "playS",
+          "sessions",
+          "avgSessionS",
+          "exits",
+          "guardReturns",
+          "endedByPlayer",
+          "endedByOperator"
+        ],
+        "title": "StatsGame"
+      },
+      "StatsHeadset": {
+        "properties": {
+          "headsetId": {
+            "type": "string",
+            "title": "Headsetid"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "playS": {
+            "type": "integer",
+            "title": "Plays"
+          },
+          "sessions": {
+            "type": "integer",
+            "title": "Sessions"
+          },
+          "disconnects": {
+            "type": "integer",
+            "title": "Disconnects"
+          },
+          "chargeInterruptions": {
+            "type": "integer",
+            "title": "Chargeinterruptions"
+          },
+          "batteryDrainPerHour": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batterydrainperhour"
+          },
+          "batteryLifeH": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Batterylifeh"
+          }
+        },
+        "type": "object",
+        "required": [
+          "headsetId",
+          "label",
+          "playS",
+          "sessions",
+          "disconnects",
+          "chargeInterruptions",
+          "batteryDrainPerHour",
+          "batteryLifeH"
+        ],
+        "title": "StatsHeadset"
+      },
+      "StatsTotals": {
+        "properties": {
+          "playS": {
+            "type": "integer",
+            "title": "Plays"
+          },
+          "sessions": {
+            "type": "integer",
+            "title": "Sessions"
+          },
+          "exits": {
+            "type": "integer",
+            "title": "Exits"
+          },
+          "guardReturns": {
+            "type": "integer",
+            "title": "Guardreturns"
+          }
+        },
+        "type": "object",
+        "required": [
+          "playS",
+          "sessions",
+          "exits",
+          "guardReturns"
+        ],
+        "title": "StatsTotals"
+      },
+      "UpdateProgress": {
+        "properties": {
+          "stage": {
+            "type": "string",
+            "enum": [
+              "starting",
+              "downloading",
+              "installing",
+              "failed"
+            ],
+            "title": "Stage"
+          },
+          "percent": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Percent",
+            "default": 0
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "stage",
+          "percent",
+          "reason"
+        ],
+        "title": "UpdateProgress",
+        "description": "Как идёт обновление агента по Wi-Fi."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "WifiUpdateRequest": {
+        "properties": {
+          "headsetIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 200,
+            "minItems": 1,
+            "title": "Headsetids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "headsetIds"
+        ],
+        "title": "WifiUpdateRequest"
+      }
+    }
+  }
+}

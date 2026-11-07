@@ -1,0 +1,512 @@
+{
+  "$defs": {
+    "AppInfo": {
+      "properties": {
+        "package": {
+          "title": "Package",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "vr": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Vr"
+        }
+      },
+      "required": [
+        "package",
+        "title",
+        "vr"
+      ],
+      "title": "AppInfo",
+      "type": "object"
+    },
+    "CommandView": {
+      "description": "Команда одному шлему и её судьба.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "headsetId": {
+          "title": "Headsetid",
+          "type": "string"
+        },
+        "cmd": {
+          "enum": [
+            "launch",
+            "show_menu",
+            "set_sleep",
+            "guard",
+            "close_game",
+            "restart_game",
+            "reboot",
+            "sleep",
+            "power_off",
+            "request_access",
+            "update_agent"
+          ],
+          "title": "Cmd",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "title": "Params",
+          "type": "object"
+        },
+        "status": {
+          "enum": [
+            "sent",
+            "acked",
+            "failed",
+            "timeout"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "offline",
+                "asleep",
+                "timeout",
+                "no_adb",
+                "not_allowed",
+                "failed",
+                "expired",
+                "bad_params"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "detail": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Detail"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "title": "Createdat",
+          "type": "string"
+        },
+        "ackedAt": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ackedat"
+        }
+      },
+      "required": [
+        "id",
+        "headsetId",
+        "cmd",
+        "params",
+        "status",
+        "reason",
+        "detail",
+        "createdAt",
+        "ackedAt"
+      ],
+      "title": "CommandView",
+      "type": "object"
+    },
+    "ControllerInfo": {
+      "properties": {
+        "side": {
+          "enum": [
+            "left",
+            "right"
+          ],
+          "title": "Side",
+          "type": "string"
+        },
+        "battery": {
+          "anyOf": [
+            {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Battery"
+        },
+        "connected": {
+          "title": "Connected",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "side",
+        "battery",
+        "connected"
+      ],
+      "title": "ControllerInfo",
+      "type": "object"
+    },
+    "HeadsetView": {
+      "description": "Шлем, как его видит дашборд.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "serial": {
+          "title": "Serial",
+          "type": "string"
+        },
+        "online": {
+          "default": false,
+          "title": "Online",
+          "type": "boolean"
+        },
+        "battery": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Battery"
+        },
+        "charging": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Charging"
+        },
+        "temp": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Temp"
+        },
+        "currentPkg": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Currentpkg"
+        },
+        "adb": {
+          "anyOf": [
+            {
+              "enum": [
+                "ready",
+                "no_wifi",
+                "waiting_confirmation",
+                "connecting",
+                "key_missing",
+                "key_rejected",
+                "error"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Adb"
+        },
+        "sleepDisabled": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sleepdisabled"
+        },
+        "agentVersion": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Agentversion"
+        },
+        "lastSeen": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lastseen"
+        },
+        "guardPkg": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Guardpkg"
+        },
+        "screenOn": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Screenon"
+        },
+        "update": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UpdateProgress"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "controllers": {
+          "items": {
+            "$ref": "#/$defs/ControllerInfo"
+          },
+          "title": "Controllers",
+          "type": "array"
+        },
+        "apps": {
+          "items": {
+            "$ref": "#/$defs/AppInfo"
+          },
+          "title": "Apps",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "serial",
+        "online",
+        "battery",
+        "charging",
+        "temp",
+        "currentPkg",
+        "adb",
+        "sleepDisabled",
+        "agentVersion",
+        "lastSeen",
+        "guardPkg",
+        "screenOn",
+        "update",
+        "controllers",
+        "apps"
+      ],
+      "title": "HeadsetView",
+      "type": "object"
+    },
+    "LiveCommand": {
+      "description": "Команда создана или изменился её статус.",
+      "properties": {
+        "type": {
+          "const": "command",
+          "default": "command",
+          "title": "Type",
+          "type": "string"
+        },
+        "command": {
+          "$ref": "#/$defs/CommandView"
+        }
+      },
+      "required": [
+        "type",
+        "command"
+      ],
+      "title": "LiveCommand",
+      "type": "object"
+    },
+    "LiveHeadset": {
+      "description": "Изменилось состояние одного шлема.",
+      "properties": {
+        "type": {
+          "const": "headset",
+          "default": "headset",
+          "title": "Type",
+          "type": "string"
+        },
+        "headset": {
+          "$ref": "#/$defs/HeadsetView"
+        }
+      },
+      "required": [
+        "type",
+        "headset"
+      ],
+      "title": "LiveHeadset",
+      "type": "object"
+    },
+    "LiveSnapshot": {
+      "description": "Отправляется дашборду сразу после подключения к /live.",
+      "properties": {
+        "type": {
+          "const": "snapshot",
+          "default": "snapshot",
+          "title": "Type",
+          "type": "string"
+        },
+        "headsets": {
+          "items": {
+            "$ref": "#/$defs/HeadsetView"
+          },
+          "title": "Headsets",
+          "type": "array"
+        },
+        "commands": {
+          "items": {
+            "$ref": "#/$defs/CommandView"
+          },
+          "title": "Commands",
+          "type": "array"
+        }
+      },
+      "required": [
+        "type",
+        "headsets",
+        "commands"
+      ],
+      "title": "LiveSnapshot",
+      "type": "object"
+    },
+    "UpdateProgress": {
+      "description": "Как идёт обновление агента по Wi-Fi.",
+      "properties": {
+        "stage": {
+          "enum": [
+            "starting",
+            "downloading",
+            "installing",
+            "failed"
+          ],
+          "title": "Stage",
+          "type": "string"
+        },
+        "percent": {
+          "default": 0,
+          "maximum": 100,
+          "minimum": 0,
+          "title": "Percent",
+          "type": "integer"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        }
+      },
+      "required": [
+        "stage",
+        "percent",
+        "reason"
+      ],
+      "title": "UpdateProgress",
+      "type": "object"
+    }
+  },
+  "discriminator": {
+    "mapping": {
+      "command": "#/$defs/LiveCommand",
+      "headset": "#/$defs/LiveHeadset",
+      "snapshot": "#/$defs/LiveSnapshot"
+    },
+    "propertyName": "type"
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/LiveSnapshot"
+    },
+    {
+      "$ref": "#/$defs/LiveHeadset"
+    },
+    {
+      "$ref": "#/$defs/LiveCommand"
+    }
+  ]
+}

@@ -1,0 +1,769 @@
+{
+  "$defs": {
+    "AuthStatus": {
+      "properties": {
+        "configured": {
+          "title": "Configured",
+          "type": "boolean"
+        },
+        "authenticated": {
+          "title": "Authenticated",
+          "type": "boolean"
+        },
+        "canSetup": {
+          "title": "Cansetup",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "configured",
+        "authenticated",
+        "canSetup"
+      ],
+      "title": "AuthStatus",
+      "type": "object"
+    },
+    "CommandCreate": {
+      "description": "Запрос дашборда: одна команда нескольким шлемам.",
+      "properties": {
+        "headsetIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 200,
+          "minItems": 1,
+          "title": "Headsetids",
+          "type": "array"
+        },
+        "cmd": {
+          "enum": [
+            "launch",
+            "show_menu",
+            "set_sleep",
+            "guard",
+            "close_game",
+            "restart_game",
+            "reboot",
+            "sleep",
+            "power_off",
+            "request_access",
+            "update_agent"
+          ],
+          "title": "Cmd",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "title": "Params",
+          "type": "object"
+        },
+        "ttlS": {
+          "default": 10,
+          "maximum": 60,
+          "minimum": 1,
+          "title": "Ttls",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "headsetIds",
+        "cmd",
+        "params",
+        "ttlS"
+      ],
+      "title": "CommandCreate",
+      "type": "object"
+    },
+    "CommandView": {
+      "description": "Команда одному шлему и её судьба.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "headsetId": {
+          "title": "Headsetid",
+          "type": "string"
+        },
+        "cmd": {
+          "enum": [
+            "launch",
+            "show_menu",
+            "set_sleep",
+            "guard",
+            "close_game",
+            "restart_game",
+            "reboot",
+            "sleep",
+            "power_off",
+            "request_access",
+            "update_agent"
+          ],
+          "title": "Cmd",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": true,
+          "title": "Params",
+          "type": "object"
+        },
+        "status": {
+          "enum": [
+            "sent",
+            "acked",
+            "failed",
+            "timeout"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "offline",
+                "asleep",
+                "timeout",
+                "no_adb",
+                "not_allowed",
+                "failed",
+                "expired",
+                "bad_params"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "detail": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Detail"
+        },
+        "createdAt": {
+          "format": "date-time",
+          "title": "Createdat",
+          "type": "string"
+        },
+        "ackedAt": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ackedat"
+        }
+      },
+      "required": [
+        "id",
+        "headsetId",
+        "cmd",
+        "params",
+        "status",
+        "reason",
+        "detail",
+        "createdAt",
+        "ackedAt"
+      ],
+      "title": "CommandView",
+      "type": "object"
+    },
+    "FleetHeadset": {
+      "description": "Шлем в базе: можно ли обновить его по Wi-Fi.",
+      "properties": {
+        "headsetId": {
+          "title": "Headsetid",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "online": {
+          "title": "Online",
+          "type": "boolean"
+        },
+        "agentVersion": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Agentversion"
+        },
+        "adb": {
+          "anyOf": [
+            {
+              "enum": [
+                "ready",
+                "no_wifi",
+                "waiting_confirmation",
+                "connecting",
+                "key_missing",
+                "key_rejected",
+                "error"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Adb"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "headsetId",
+        "label",
+        "online",
+        "agentVersion",
+        "adb",
+        "status"
+      ],
+      "title": "FleetHeadset",
+      "type": "object"
+    },
+    "SetupDevice": {
+      "properties": {
+        "adbId": {
+          "title": "Adbid",
+          "type": "string"
+        },
+        "transport": {
+          "enum": [
+            "usb",
+            "wifi"
+          ],
+          "title": "Transport",
+          "type": "string"
+        },
+        "state": {
+          "title": "State",
+          "type": "string"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "bundledVersion": {
+          "title": "Bundledversion",
+          "type": "string"
+        },
+        "serial": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Serial"
+        },
+        "model": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model"
+        },
+        "installedVersion": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Installedversion"
+        },
+        "permissionsOk": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Permissionsok"
+        },
+        "headsetId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Headsetid"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        }
+      },
+      "required": [
+        "adbId",
+        "transport",
+        "state",
+        "status",
+        "bundledVersion",
+        "serial",
+        "model",
+        "installedVersion",
+        "permissionsOk",
+        "headsetId",
+        "label"
+      ],
+      "title": "SetupDevice",
+      "type": "object"
+    },
+    "SetupInfo": {
+      "properties": {
+        "bundledVersion": {
+          "title": "Bundledversion",
+          "type": "string"
+        },
+        "devices": {
+          "items": {
+            "$ref": "#/$defs/SetupDevice"
+          },
+          "title": "Devices",
+          "type": "array"
+        },
+        "fleet": {
+          "items": {
+            "$ref": "#/$defs/FleetHeadset"
+          },
+          "title": "Fleet",
+          "type": "array"
+        },
+        "job": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SetupJob"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "bundledVersion",
+        "devices",
+        "fleet",
+        "job"
+      ],
+      "title": "SetupInfo",
+      "type": "object"
+    },
+    "SetupJob": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "install",
+            "update",
+            "remove"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "adbId": {
+          "title": "Adbid",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "running",
+            "waiting_user",
+            "done",
+            "failed"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "log": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Log",
+          "type": "array"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "adbId",
+        "status",
+        "log",
+        "error"
+      ],
+      "title": "SetupJob",
+      "type": "object"
+    },
+    "SetupRequest": {
+      "properties": {
+        "kind": {
+          "enum": [
+            "install",
+            "update",
+            "remove"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "adbId": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Adbid",
+          "type": "string"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        }
+      },
+      "required": [
+        "kind",
+        "adbId",
+        "label"
+      ],
+      "title": "SetupRequest",
+      "type": "object"
+    },
+    "Stats": {
+      "properties": {
+        "period": {
+          "enum": [
+            "today",
+            "7d",
+            "30d"
+          ],
+          "title": "Period",
+          "type": "string"
+        },
+        "from": {
+          "format": "date-time",
+          "title": "From",
+          "type": "string"
+        },
+        "to": {
+          "format": "date-time",
+          "title": "To",
+          "type": "string"
+        },
+        "totals": {
+          "$ref": "#/$defs/StatsTotals"
+        },
+        "games": {
+          "items": {
+            "$ref": "#/$defs/StatsGame"
+          },
+          "title": "Games",
+          "type": "array"
+        },
+        "headsets": {
+          "items": {
+            "$ref": "#/$defs/StatsHeadset"
+          },
+          "title": "Headsets",
+          "type": "array"
+        },
+        "days": {
+          "items": {
+            "$ref": "#/$defs/StatsDay"
+          },
+          "title": "Days",
+          "type": "array"
+        }
+      },
+      "required": [
+        "period",
+        "from",
+        "to",
+        "totals",
+        "games",
+        "headsets",
+        "days"
+      ],
+      "title": "Stats",
+      "type": "object"
+    },
+    "StatsDay": {
+      "properties": {
+        "date": {
+          "title": "Date",
+          "type": "string"
+        },
+        "playS": {
+          "title": "Plays",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "date",
+        "playS"
+      ],
+      "title": "StatsDay",
+      "type": "object"
+    },
+    "StatsGame": {
+      "properties": {
+        "package": {
+          "title": "Package",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "playS": {
+          "title": "Plays",
+          "type": "integer"
+        },
+        "sessions": {
+          "title": "Sessions",
+          "type": "integer"
+        },
+        "avgSessionS": {
+          "title": "Avgsessions",
+          "type": "integer"
+        },
+        "exits": {
+          "title": "Exits",
+          "type": "integer"
+        },
+        "guardReturns": {
+          "title": "Guardreturns",
+          "type": "integer"
+        },
+        "endedByPlayer": {
+          "title": "Endedbyplayer",
+          "type": "integer"
+        },
+        "endedByOperator": {
+          "title": "Endedbyoperator",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "package",
+        "title",
+        "playS",
+        "sessions",
+        "avgSessionS",
+        "exits",
+        "guardReturns",
+        "endedByPlayer",
+        "endedByOperator"
+      ],
+      "title": "StatsGame",
+      "type": "object"
+    },
+    "StatsHeadset": {
+      "properties": {
+        "headsetId": {
+          "title": "Headsetid",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "playS": {
+          "title": "Plays",
+          "type": "integer"
+        },
+        "sessions": {
+          "title": "Sessions",
+          "type": "integer"
+        },
+        "disconnects": {
+          "title": "Disconnects",
+          "type": "integer"
+        },
+        "chargeInterruptions": {
+          "title": "Chargeinterruptions",
+          "type": "integer"
+        },
+        "batteryDrainPerHour": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Batterydrainperhour"
+        },
+        "batteryLifeH": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Batterylifeh"
+        }
+      },
+      "required": [
+        "headsetId",
+        "label",
+        "playS",
+        "sessions",
+        "disconnects",
+        "chargeInterruptions",
+        "batteryDrainPerHour",
+        "batteryLifeH"
+      ],
+      "title": "StatsHeadset",
+      "type": "object"
+    },
+    "StatsTotals": {
+      "properties": {
+        "playS": {
+          "title": "Plays",
+          "type": "integer"
+        },
+        "sessions": {
+          "title": "Sessions",
+          "type": "integer"
+        },
+        "exits": {
+          "title": "Exits",
+          "type": "integer"
+        },
+        "guardReturns": {
+          "title": "Guardreturns",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "playS",
+        "sessions",
+        "exits",
+        "guardReturns"
+      ],
+      "title": "StatsTotals",
+      "type": "object"
+    },
+    "WifiUpdateRequest": {
+      "properties": {
+        "headsetIds": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 200,
+          "minItems": 1,
+          "title": "Headsetids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "headsetIds"
+      ],
+      "title": "WifiUpdateRequest",
+      "type": "object"
+    }
+  },
+  "anyOf": [
+    {
+      "$ref": "#/$defs/AuthStatus"
+    },
+    {
+      "$ref": "#/$defs/CommandCreate"
+    },
+    {
+      "items": {
+        "$ref": "#/$defs/CommandView"
+      },
+      "type": "array"
+    },
+    {
+      "$ref": "#/$defs/Stats"
+    },
+    {
+      "$ref": "#/$defs/SetupInfo"
+    },
+    {
+      "$ref": "#/$defs/SetupRequest"
+    },
+    {
+      "$ref": "#/$defs/WifiUpdateRequest"
+    }
+  ],
+  "title": "Rest"
+}

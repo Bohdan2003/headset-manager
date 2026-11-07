@@ -1,0 +1,36 @@
+[project]
+name = "headset-server"
+version = "0.1.0"
+description = "Сервер управления шлемами Meta Quest: реестр, WebSocket для агентов и дашборда, статистика"
+authors = [
+    { name = "Bohdan Honcharenko", email = "bogdan.goncharenko.03@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "aiosqlite>=0.22.1",
+    "alembic>=1.20.1",
+    "cryptography>=50.0.2",
+    "fastapi>=0.162.0",
+    "pydantic>=2",
+    "pydantic-settings>=2.16.2",
+    "sqlalchemy[asyncio]>=2",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[project.scripts]
+headset-server = "headset_server:main"
+
+[build-system]
+requires = ["uv_build>=0.13.6,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pyinstaller>=6.22.3",
+    "pytest>=9.2.0",
+    "websockets>=17.4",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

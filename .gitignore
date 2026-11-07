@@ -1,0 +1,25 @@
+.DS_Store
+# ключи ADB и токены — никогда не коммитим
+adbkey*
+*.pem
+*.der
+*.pk8
+*.p12
+*.keystore
+*.jks
+.env
+.env.*
+auth.json
+admin-token.txt
+# базы: в них токены шлемов
+*.db
+*.db-*
+*.sqlite
+# пути этого компьютера и служебные папки
+local.properties
+.kotlin/
+.pytest_cache/
+*.log
+quest_report.txt
+build/
+dist/

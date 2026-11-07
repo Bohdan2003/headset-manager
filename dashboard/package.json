@@ -1,0 +1,29 @@
+{
+  "name": "dashboard",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "oxlint",
+    "preview": "vite preview",
+    "gen:types": "cd ../server && uv run python tools/export_schema.py && cd ../dashboard && json2ts -i ../server/schema/live.json -o src/api/protocol.gen.ts --bannerComment '/* Сгенерировано из server/schema/live.json (npm run gen:types). Не править руками. */' --additionalProperties false && json2ts -i ../server/schema/rest.json -o src/api/rest.gen.ts --bannerComment '/* Сгенерировано из server/schema/rest.json (npm run gen:types). Не править руками. */' --additionalProperties false"
+  },
+  "dependencies": {
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "json-schema-to-typescript": "^16.0.0",
+    "oxlint": "^1.89.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "~7.0.2",
+    "vite": "^8.3.5"
+  }
+}
