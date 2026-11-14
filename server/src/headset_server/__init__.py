@@ -17,7 +17,7 @@ from .live import LiveHub
 from .migrations import run_migrations
 from .registry import Registry
 from .sessions import Sessions
-from .setup_tools import SetupJobs
+from .setup_tools import SetupJobs, restore_computer_key
 
 log = logging.getLogger(__name__)
 
@@ -52,6 +52,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             return creds.headset_id, creds.token
 
         app.state.setup_jobs = SetupJobs(register_for_setup, settings.port)
+        restore_computer_key()  # если программа упала во время настройки ключа шлема
 
         tasks = [
             asyncio.create_task(_every(1.0, registry.sweep)),

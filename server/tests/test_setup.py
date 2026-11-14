@@ -82,10 +82,17 @@ def adb(tmp_path, monkeypatch):
     script.write_text(FAKE_ADB.format(python=sys.executable, state=str(state_file)))
     script.chmod(script.stat().st_mode | stat.S_IEXEC)
     monkeypatch.setattr(paths, "adb_path", lambda: str(script))
+    adb_home = tmp_path / "home" / ".android"
+    adb_home.mkdir(parents=True)
+    (adb_home / "adbkey").write_text("COMPUTER-KEY")
+    (adb_home / "adbkey.pub").write_text("COMPUTER-PUB")
+    monkeypatch.setattr(paths, "adb_user_dir", lambda: adb_home)
     monkeypatch.setattr(paths, "bundled_agent", lambda: ("0.10", 10))
     monkeypatch.setattr(setup_tools, "local_server_url", lambda port: f"http://10.0.0.5:{port}")
 
     class State:
+        home = adb_home
+
         def __getitem__(self, k):
             return json.loads(state_file.read_text())[k]
 
@@ -172,6 +179,33 @@ def test_install_stops_if_always_allow_not_ticked(client, adb):
     assert job["status"] == "failed"
     assert "Always allow" in job["error"]
     assert len(adb["provisioned"]) == 1  # ключ агенту не передан
+    assert_computer_key_back(adb)
+
+
+def assert_computer_key_back(adb):
+    assert (adb.home / "adbkey").read_text() == "COMPUTER-KEY"
+    assert (adb.home / "adbkey.pub").read_text() == "COMPUTER-PUB"
+    assert not (adb.home / setup_tools.KEY_BACKUP).exists()
+
+
+def test_headset_key_is_used_and_computer_key_restored(client, adb):
+    job = run(client, "install", "Шлем")
+    assert job["status"] == "done", job
+    assert_computer_key_back(adb)
+    calls = adb["calls"]
+    keygen = calls.index(["keygen", str(adb.home / "adbkey")])  # новый ключ на месте ключа компьютера
+    assert calls.index(["kill-server"]) < keygen < calls.index(["start-server"])
+
+
+def test_computer_key_restored_after_crash(adb):
+    """Программа упала посередине настройки: в папке adb ключ шлема, ключ компьютера отложен."""
+    backup = adb.home / setup_tools.KEY_BACKUP
+    backup.mkdir()
+    for name in setup_tools.KEY_FILES:
+        (adb.home / name).replace(backup / name)
+    (adb.home / "adbkey").write_text("HEADSET-KEY")
+    setup_tools.restore_computer_key()
+    assert_computer_key_back(adb)
 
 
 def test_install_needs_cable_and_name(client, adb):

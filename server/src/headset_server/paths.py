@@ -35,6 +35,14 @@ def dashboard_dir() -> Path:
     return resource_dir() / "dashboard" if PACKAGED else _REPO / "dashboard" / "dist"
 
 
+def adb_user_dir() -> Path:
+    """
+    Папка, где adb хранит ключ компьютера (adbkey, adbkey.pub). Переменные окружения её не меняют:
+    на Mac adb смотрит в HOME, а на Windows спрашивает папку профиля у системы.
+    """
+    return Path.home() / ".android"
+
+
 def adb_path() -> str | None:
     if PACKAGED:
         return str(resource_dir() / "adb" / ("adb.exe" if sys.platform == "win32" else "adb"))

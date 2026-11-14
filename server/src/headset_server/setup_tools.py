@@ -16,7 +16,6 @@ import shutil
 import socket
 import subprocess
 import sys
-import tempfile
 from collections.abc import Awaitable, Callable
 from pathlib import Path
 
@@ -37,13 +36,15 @@ AUTH_WAIT_S = 120
 # Обновляться по Wi-Fi умеет только агент начиная с этой версии: первый раз нужен кабель
 WIFI_UPDATE_MIN = (0, 11, 2)
 SERIAL_RE = re.compile(r"^[A-Za-z0-9_.:\-]+$")
+KEY_FILES = ("adbkey", "adbkey.pub")
+KEY_BACKUP = "arena-computer-key"  # папка внутри paths.adb_user_dir()
 
 
 class SetupError(Exception):
     """Понятная оператору причина, почему шаг не удался."""
 
 
-def _adb_sync(args: list[str], env: dict[str, str] | None, timeout: float) -> tuple[int, str]:
+def _adb_sync(args: list[str], timeout: float) -> tuple[int, str]:
     adb = paths.adb_path()
     if adb is None:
         raise SetupError("adb not found")
@@ -51,15 +52,15 @@ def _adb_sync(args: list[str], env: dict[str, str] | None, timeout: float) -> tu
     try:
         p = subprocess.run(
             [adb, *args], capture_output=True, text=True, errors="replace",
-            timeout=timeout, env=env, creationflags=flags,
+            timeout=timeout, creationflags=flags,
         )
     except subprocess.TimeoutExpired as e:
         raise SetupError(f"adb timed out: {args[0]}") from e
     return p.returncode, (p.stdout + p.stderr).strip()
 
 
-async def adb(*args: str, env: dict[str, str] | None = None, timeout: float = 30) -> tuple[int, str]:
-    return await asyncio.to_thread(_adb_sync, list(args), env, timeout)
+async def adb(*args: str, timeout: float = 30) -> tuple[int, str]:
+    return await asyncio.to_thread(_adb_sync, list(args), timeout)
 
 
 async def _shell(serial: str, command: str, **kw) -> str:
@@ -150,6 +151,19 @@ async def _fill_device(d: SetupDevice, labels: dict[str, tuple[str, str]], bundl
         )
 
 
+def restore_computer_key() -> None:
+    """Вернуть ключ компьютера на место, если он убран на время настройки шлема (или программа упала посередине)."""
+    home = paths.adb_user_dir()
+    backup = home / KEY_BACKUP
+    if not backup.is_dir():
+        return
+    for name in KEY_FILES:
+        (home / name).unlink(missing_ok=True)  # ключ шлема
+        if (backup / name).exists():
+            os.replace(backup / name, home / name)
+    shutil.rmtree(backup, ignore_errors=True)
+
+
 class SetupJobs:
     """Одна операция за раз: при настройке ключа перезапускается adb-сервер."""
 
@@ -206,11 +220,11 @@ class SetupJobs:
         await _shell(s, "settings put secure accessibility_enabled 1")
         await _shell(s, "settings put global adb_allowed_connection_time 0")
 
-    async def _broadcast(self, adb_id: str, action: str, extras: dict[str, str], env=None) -> str:
+    async def _broadcast(self, adb_id: str, action: str, extras: dict[str, str]) -> str:
         args = ["-s", adb_id, "shell", "am", "broadcast", "-n", RECEIVER, "-a", f"{PKG}.{action}"]
         for key, value in extras.items():
             args += ["--es", key, value]
-        code, out = await adb(*args, env=env)
+        code, out = await adb(*args)
         if code != 0 or 'data="ok' not in out:
             raise SetupError(f"agent rejected {action}")  # в out могут быть ключ и токен — не показываем
         return out
@@ -234,19 +248,25 @@ class SetupJobs:
         await self._provision_key(job)
 
     async def _provision_key(self, job: SetupJob) -> None:
-        """Отдельный ключ шлема: шлему показываем только его, иначе разрешится ключ компьютера."""
-        tmp = Path(tempfile.mkdtemp(prefix="arena-key-"))
-        android_home = tmp / ".android"
-        android_home.mkdir(mode=0o700)
-        env = {
-            **os.environ, "HOME": str(tmp), "USERPROFILE": str(tmp), "ANDROID_USER_HOME": str(android_home),
-        }
-        env.pop("ADB_VENDOR_KEYS", None)
+        """
+        Отдельный ключ шлема: шлему показываем только его, иначе разрешится ключ компьютера.
+        adb берёт ключ только из своей папки (paths.adb_user_dir), подменить её переменными окружения
+        нельзя (на Windows не работает). Поэтому на время настройки ключ компьютера убираем в сторону,
+        кладём на его место новый ключ и запускаем adb-сервер с ним, а потом возвращаем всё обратно.
+        """
+        home = paths.adb_user_dir()
+        home.mkdir(parents=True, exist_ok=True)
+        restore_computer_key()  # прошлая настройка могла прерваться
+        await adb("kill-server")
+        backup = home / KEY_BACKUP
+        backup.mkdir()
         try:
-            await adb("keygen", str(android_home / "adbkey"))
-            pub = (android_home / "adbkey.pub").read_text(encoding="utf-8").split()[0]
-            await adb("kill-server")
-            await adb("start-server", env=env)
+            for name in KEY_FILES:
+                if (home / name).exists():
+                    os.replace(home / name, backup / name)
+            await adb("keygen", str(home / "adbkey"))
+            pub = (home / "adbkey.pub").read_text(encoding="utf-8").split()[0]
+            await adb("start-server")
 
             job.status = "waiting_user"
             job.log.append(
@@ -254,7 +274,7 @@ class SetupJobs:
             )
             deadline = asyncio.get_running_loop().time() + AUTH_WAIT_S
             while True:
-                code, out = await adb("-s", job.adb_id, "get-state", env=env)
+                code, out = await adb("-s", job.adb_id, "get-state")
                 if code == 0 and out.strip() == "device":
                     break
                 if asyncio.get_running_loop().time() > deadline:
@@ -264,21 +284,23 @@ class SetupJobs:
 
             # Без галочки ключ не сохранится, и беспроводная отладка его не примет
             await asyncio.sleep(1)
-            _, logcat = await adb("-s", job.adb_id, "logcat", "-d", "-s", "AdbDebuggingManager:D", env=env, timeout=60)
+            _, logcat = await adb("-s", job.adb_id, "logcat", "-d", "-s", "AdbDebuggingManager:D", timeout=60)
             lines = [line for line in logcat.splitlines() if "Logging key" in line and pub[:40] in line]
-            if not lines or "alwaysAllow = true" not in lines[-1]:
+            if not lines:
+                raise SetupError("The headset did not see the new key. Run install again")
+            if "alwaysAllow = true" not in lines[-1]:
                 raise SetupError("“Always allow from this computer” was not ticked. Run install again")
 
             job.log.append("Sending the ADB key to the agent…")
-            key_der, cert_der = _key_and_cert(android_home / "adbkey")
+            key_der, cert_der = _key_and_cert(home / "adbkey")
             await self._broadcast(job.adb_id, "PROVISION_KEY", {
                 "key_b64": base64.b64encode(key_der).decode(),
                 "cert_b64": base64.b64encode(cert_der).decode(),
-            }, env=env)
+            })
         finally:
             await adb("kill-server")
+            restore_computer_key()  # ключ шлема остаётся только в агенте
             await adb("start-server")
-            shutil.rmtree(tmp, ignore_errors=True)  # ключ остаётся только в агенте
 
     async def _update(self, job: SetupJob, _: str | None) -> None:
         await self._install_apk(job)

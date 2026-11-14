@@ -57,7 +57,7 @@ Android удаляет доверенный ключ, если им не пол�
 
 ### `scripts/provision.sh` (по шагам)
 
-`adb install -r` → `pm grant ... WRITE_SECURE_SETTINGS` и остальные права → включить Accessibility-сервис агента (`settings put secure enabled_accessibility_services ...` + `accessibility_enabled 1`) → таймер `0` → `adb keygen` во временную папку → запустить adb-сервер так, чтобы шлему предъявлялся **только** этот ключ (adb ищет ключ в `$HOME/.android/` и `ANDROID_USER_HOME`; если оставить обычный `HOME`, предъявится и ключ компьютера) → оператор ставит галочку «Always allow from this computer» → проверить по `logcat` (`AdbDebuggingManager ... alwaysAllow = true`), иначе стоп → передать ключ и сертификат агенту broadcast'ом в receiver с `android:permission="android.permission.DUMP"` (PKCS#8 DER + X.509 DER, base64) → удалить файлы ключа с компьютера → перезагрузка, оператор нажимает «Allow», ждать `adb: ready`.
+`adb install -r` → `pm grant ... WRITE_SECURE_SETTINGS` и остальные права → включить Accessibility-сервис агента (`settings put secure enabled_accessibility_services ...` + `accessibility_enabled 1`) → таймер `0` → `adb keygen` во временную папку → запустить adb-сервер так, чтобы шлему предъявлялся **только** этот ключ (adb ищет ключ только в `<домашняя папка>/.android/`, `ANDROID_USER_HOME` он не читает — проверено по adb 1.0.41; на Mac папку можно подменить через `HOME`, на Windows adb берёт папку профиля у системы, и переменные не помогают. Поэтому программа Arena на время настройки откладывает ключ компьютера в `.android/arena-computer-key/`, кладёт на его место ключ шлема и потом возвращает; после сбоя возвращает при запуске) → оператор ставит галочку «Always allow from this computer» → проверить по `logcat` (`AdbDebuggingManager ... alwaysAllow = true`), иначе стоп → передать ключ и сертификат агенту broadcast'ом в receiver с `android:permission="android.permission.DUMP"` (PKCS#8 DER + X.509 DER, base64) → удалить файлы ключа с компьютера → перезагрузка, оператор нажимает «Allow», ждать `adb: ready`.
 
 - Сертификат к ключу — самоподписанный, как у `adb`: `C=US, O=Android, CN=Adb`, `basicConstraints=critical,CA:TRUE`, `keyUsage=critical,keyCertSign,cRLSign,digitalSignature`, `subjectKeyIdentifier=hash`.
 - `DUMP` — право уровня `development`, его можно выдать любому приложению через `pm grant`, так что «отправить может только `shell`» — не абсолютная гарантия.
@@ -260,7 +260,7 @@ Quest отдаёт заряд только в `dumpsys OVRRemoteService` (стр
 
 ## CI/CD (07.11)
 
-GitHub Actions, файлы в `.github/workflows/`, подробности в `packaging/README.md`. Первый пуш — 07.11; `gh` на компьютере не авторизован, результаты запусков смотреть на сайте. Windows-сборка ещё не запускалась.
+GitHub Actions, файлы в `.github/workflows/`, подробности в `packaging/README.md`. Первый пуш — 07.11; `gh` на компьютере не авторизован, результаты запусков смотреть на сайте. Сборка Mac и Windows на GitHub проходит (07.11, `994529d`), но `Arena.exe` на настоящем Windows ещё не запускался. Предупреждение про Node.js 20 в Actions пока не мешает: нужно будет поднять версии действий.
 - `ci.yml`, при каждом пуше: тесты сервера, lint и сборка дашборда, сверка типов с сервером, компиляция агента.
 - `release.yml`: сборка Mac и Windows по тегу `v*` (архивы в Releases) или вручную (только архивы на странице запуска).
 - Агент в сборках на GitHub не пересобирается: там нет ключа подписи. Берётся `packaging/prebuilt/agent.apk`, а `build.py` останавливается, если его версия не совпадает с кодом.
