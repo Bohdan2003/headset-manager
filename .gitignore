@@ -1,7 +1,9 @@
 .DS_Store
-# ключи ADB и токены — никогда не коммитим
+# personal Claude notes
+CLAUDE.local.md
+# ADB keys and tokens: never commit
 adbkey*
-# на Mac git не различает регистр: без этого правила теряется исходник агента
+# git on Mac does not see letter case: without this rule the agent source file is lost
 !AdbKey.kt
 *.pem
 *.der
@@ -13,11 +15,11 @@ adbkey*
 .env.*
 auth.json
 admin-token.txt
-# базы: в них токены шлемов
+# databases: they hold headset tokens
 *.db
 *.db-*
 *.sqlite
-# пути этого компьютера и служебные папки
+# paths of this computer and service folders
 local.properties
 .kotlin/
 .pytest_cache/

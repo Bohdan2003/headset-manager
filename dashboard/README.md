@@ -1,32 +1,32 @@
-# dashboard — React + Vite + TypeScript + Tailwind
+# dashboard: React + Vite + TypeScript + Tailwind
 
-## Разработка
+## Development
 
 ```bash
-# 1. сервер (в другом терминале)
+# 1. server (in another terminal)
 cd ../server && HM_ADMIN_TOKEN=dev-admin uv run headset-server
-# 2. по желанию — фейковые шлемы
+# 2. optional: fake headsets
 cd ../server && HM_ADMIN_TOKEN=dev-admin uv run python tools/fake_agent.py --count 3
-# 3. дашборд с горячей перезагрузкой
-npm run dev        # http://localhost:5173, /api и /live проксируются на :8000
+# 3. dashboard with hot reload
+npm run dev        # http://localhost:5173, /api and /live go to :8000
 ```
 
-Сервер на другой машине: `HM_SERVER=http://192.168.50.74:8000 npm run dev`.
+Server on another machine: `HM_SERVER=http://192.168.50.74:8000 npm run dev`.
 
-## На арене
+## At the arena
 
-`npm run build` → FastAPI сам раздаёт `dist/` на http://<сервер>:8000/ — Node не нужен.
+`npm run build` → FastAPI serves `dist/` at http://<server>:8000/. No Node needed.
 
-## Типы протокола
+## Protocol types
 
-`src/api/protocol.gen.ts` генерируется из Pydantic-моделей сервера — руками не править:
+`src/api/protocol.gen.ts` and `src/api/rest.gen.ts` are generated from the server's Pydantic models. Never edit them by hand:
 
 ```bash
 npm run gen:types
 ```
 
-## Устройство
+## Code map
 
-- `src/api/useLive.ts` — WebSocket `/live`: снимок всех шлемов, затем изменения; автопереподключение.
-- `src/lib/format.ts` — названия приложений, статусы ADB простыми словами, «N мин назад».
-- `src/components/` — карточка шлема, сводка, статус связи с сервером.
+- `src/api/useLive.ts`: WebSocket `/live`. Snapshot of all headsets, then changes. Reconnects by itself.
+- `src/lib/format.ts`: app names, ADB statuses in plain words, "N min ago".
+- `src/components/`: headset card, summary, server connection status, command panel.

@@ -1,4 +1,4 @@
-# Сборка программы Arena
+# Building the Arena program
 
 ## Mac
 
@@ -6,35 +6,35 @@
 cd server && uv run python ../packaging/build.py
 ```
 
-Результат: `dist/Arena.app`. Нужны uv, Node.js, JDK 17 (`JAVA_HOME`), Android SDK и adb.
-Сборка обновляет `packaging/prebuilt/agent.apk`.
+Result: `dist/Arena.app`. Needs uv, Node.js, JDK 17 (`JAVA_HOME`), the Android SDK and adb.
+The build updates `packaging/prebuilt/agent.apk`.
 
-Программа не подписана сертификатом Apple: на другом Mac первый запуск — правый клик → Open.
+The program is not signed with an Apple certificate. On another Mac, the first start is: right click → Open.
 
 ## Windows
 
-Экзешник собирается только на Windows. Нужны uv и Node.js, Android SDK не нужен.
+The exe can be built only on Windows. Needs uv and Node.js. No Android SDK needed.
 
-1. Скопировать проект вместе с `packaging/prebuilt/` (там готовый агент, собранный на Mac).
-2. Выполнить:
+1. Copy the project together with `packaging/prebuilt/` (the ready agent, built on the Mac).
+2. Run:
 
    ```bat
    cd server
    uv run python ..\packaging\build.py
    ```
 
-Результат: папка `dist\Arena` с `Arena.exe`. Переносить надо всю папку. Скрипт сам скачает adb для Windows.
+Result: folder `dist\Arena` with `Arena.exe`. Move the whole folder. The script downloads adb for Windows by itself.
 
-Для USB-подключения шлема на Windows может понадобиться драйвер Oculus ADB Driver.
-Брандмауэр Windows при первом запуске спросит разрешение на входящие подключения: без него шлемы не подключатся.
+For a USB connection to the headset on Windows you may need the Oculus ADB Driver.
+On the first start Windows Firewall asks to allow incoming connections. Without it headsets can't connect.
 
-Агента на Windows не пересобираем: он должен быть подписан тем же ключом, что и на Mac.
+We do not rebuild the agent on Windows: it must be signed with the same key as on the Mac.
 
 ## GitHub Actions
 
-Проверки при каждом пуше: `.github/workflows/ci.yml`. Сборка: `.github/workflows/release.yml`.
+Checks on every push: `.github/workflows/ci.yml`. Build: `.github/workflows/release.yml`.
 
-- Тег `v*` (например, `git tag v1.2.0 && git push origin v1.2.0`) собирает Mac и Windows и выкладывает архивы в Releases.
-- Запуск вручную (Actions → Build Arena → Run workflow) только собирает: архивы лежат на странице запуска, релиз не создаётся.
+- A `v*` tag (for example `git tag v1.2.0 && git push origin v1.2.0`) builds Mac and Windows and puts the archives in Releases.
+- A manual run (Actions → Build Arena → Run workflow) only builds: archives are on the run page, no release is created.
 
-На машинах GitHub нет ключа подписи, поэтому агент там не пересобирается: берётся `packaging/prebuilt/agent.apk` из репозитория (`ARENA_PREBUILT_AGENT=1`). Если версия агента в коде изменилась, сначала соберите программу на Mac и закоммитьте новый `packaging/prebuilt/`. Иначе сборка остановится с ошибкой.
+GitHub machines have no signing key, so the agent is not rebuilt there: it takes `packaging/prebuilt/agent.apk` from the repository (`ARENA_PREBUILT_AGENT=1`). If the agent version in the code changed, first build the program on the Mac and commit the new `packaging/prebuilt/`. Otherwise the build stops with an error.
