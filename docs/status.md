@@ -1,7 +1,7 @@
 # Status
 
 Read this at the start of a task. Update it at the end: move items, add the date.
-Last update: 22.11.2026. Agent in code: 0.11.3 (versionCode 21).
+Last update: 22.11.2026. Agent in code: 0.11.4 (versionCode 22). Headsets run 0.11.3 until updated.
 
 ## How to run
 
@@ -25,6 +25,10 @@ Last update: 22.11.2026. Agent in code: 0.11.3 (versionCode 21).
 
 ## Done, not checked on a real device
 
+- Agent 0.11.4 (bugs from the Windows test, 22.11):
+  - charging: the card said "not charging" while power was connected. Now the agent also sends `plugged`, and the card shows "plugged in, not charging". Cause (likely, not confirmed on the device): a weak power source gives Android status `NOT_CHARGING`.
+  - close game after "launch A, launch B" gave an error on the card. Now "Close game" closes every running game in one adbd session. Cause (likely, the error text was not seen): the agent closed only the game it thought was in front, and that value can be stale.
+  - To check on 203: plug into a PC USB port → "plugged in, not charging"; launch A, launch B, Close game → our menu, `pidof` empty for both, card green.
 - Install, Update and Remove from the Setup tab (only tests with a fake adb).
 - `Arena.exe` on a real Windows computer. The adb key swap on Windows matters most here.
 - `request_access` (agent 0.10.3).

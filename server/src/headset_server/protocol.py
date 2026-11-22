@@ -72,7 +72,12 @@ class ControllerInfo(ProtocolModel):
 class Heartbeat(ProtocolModel):
     type: Literal["heartbeat"]
     battery: int = Field(ge=0, le=100)
+    # The battery is filling up (Android status CHARGING or FULL)
     charging: bool
+    # Power is connected. Can be True while charging is False: a weak power source
+    # (PC USB port, weak power bank) does not fill the battery of a headset in use.
+    # None means an old agent.
+    plugged: bool | None = None
     temp: float | None = None
     current_pkg: str | None = None
     adb: AdbStatus
@@ -156,6 +161,7 @@ class HeadsetView(ProtocolModel):
     online: bool = False
     battery: int | None = None
     charging: bool | None = None
+    plugged: bool | None = None
     temp: float | None = None
     current_pkg: str | None = None
     adb: AdbStatus | None = None

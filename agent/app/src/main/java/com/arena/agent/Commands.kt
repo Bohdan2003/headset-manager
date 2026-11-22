@@ -119,14 +119,60 @@ class CommandExecutor(private val context: Context, private val adb: AdbManager)
     }
 
     private fun closeGame(id: String, p: JSONObject): JSONObject {
-        val target = if (p.isNull("pkg")) CurrentApp.pkg else pkg(p.getString("pkg"))
-        if (target == null || target == context.packageName || isSystemPackage(target)) {
-            return fail(id, "failed", "nothing to close (current: ${CurrentApp.pkg})")
+        if (p.isNull("pkg")) {
+            closeAllGames(id)?.let { return it }
+        } else {
+            val target = pkg(p.getString("pkg"))
+            if (target == context.packageName || isSystemPackage(target)) {
+                return fail(id, "failed", "cannot close a system app: $target")
+            }
+            forceStop(id, target)?.let { return it }
         }
-        forceStop(id, target)?.let { return it }
         Guard.set(context, null) // только после закрытия: если не вышло, защита остаётся
         MenuActivity.show(context) // игрок видит наш экран ожидания, а не домашнее окружение Meta
         return ok(id)
+    }
+
+    /**
+     * Close every running game, not only the one we think is in front.
+     * CurrentApp comes from Accessibility events, and an immersive game sometimes sends none.
+     * So after "launch A, launch B" CurrentApp can still be A or a Meta panel, and closing
+     * only it failed or closed the wrong game. Game A also stays in the background and comes
+     * back when B is closed.
+     *
+     * The game list comes from Android (`pm list packages -3`), not from the network.
+     * Everything runs in one adbd session: each login takes about 2 s.
+     * If no game is running, this is not an error: the player just gets our menu.
+     */
+    private fun closeAllGames(id: String): JSONObject? {
+        val known = listOfNotNull(CurrentApp.pkg, Guard.get(context))
+            .filter { PACKAGE_RE.matches(it) && it != context.packageName && !isSystemPackage(it) }
+            .joinToString(" ")
+        val skip = "${context.packageName}|com.oculus.*|com.meta.*|com.facebook.*|com.android.*|android*"
+        val script = "s=''; " +
+            "for p in \$(pm list packages -3 | cut -d: -f2) $known; do " +
+            "case \"\$p\" in $skip) continue;; esac; " +
+            "if pidof \"\$p\" >/dev/null; then am force-stop \"\$p\"; s=\"\$s \$p\"; fi; done; " +
+            "for p in \$s; do if pidof \"\$p\" >/dev/null; then echo \"running:\$p\"; else echo \"closed:\$p\"; fi; done; " +
+            "echo end"
+
+        Guard.hold(HOLD_MS) // иначе защита успеет вернуть игру, пока мы её закрываем
+        val out = adb.shell(script)
+        val lines = out?.lines()?.map { it.trim() }.orEmpty()
+        val running = lines.filter { it.startsWith("running:") }.map { it.removePrefix("running:") }
+        val result = when {
+            out == null -> fail(id, "no_adb", "cannot connect to adbd")
+            "end" !in lines -> fail(id, "failed", "no full answer from shell: ${out.take(200)}")
+            running.isNotEmpty() -> fail(id, "failed", "still running: ${running.joinToString()}")
+            else -> null
+        }
+        if (result != null) {
+            Guard.hold(0)
+        } else {
+            val closed = lines.filter { it.startsWith("closed:") }.map { it.removePrefix("closed:") }
+            AgentLog.i(if (closed.isEmpty()) "close: no game was running" else "closed ${closed.joinToString()}")
+        }
+        return result
     }
 
     /** Закрыть игру и запустить заново. Защита остаётся включённой. */

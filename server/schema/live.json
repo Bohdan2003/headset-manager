@@ -222,6 +222,18 @@
           "default": null,
           "title": "Charging"
         },
+        "plugged": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Plugged"
+        },
         "temp": {
           "anyOf": [
             {
@@ -361,6 +373,7 @@
         "online",
         "battery",
         "charging",
+        "plugged",
         "temp",
         "currentPkg",
         "adb",

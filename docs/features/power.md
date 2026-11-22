@@ -26,4 +26,10 @@ After a reboot: the agent starts by itself and is online in ~30 s with `waiting_
 
 ## Charging (agent 0.8.1)
 
-Headsets have power banks. Next to the battery percent: "71% · charging" / "71% · not charging" (`charging` in heartbeat). When power is plugged in or out, the agent sends a heartbeat at once.
+Headsets have power banks. Next to the battery percent the card shows one of:
+- "71% · charging": the battery is filling up (`charging`, Android status `CHARGING` or `FULL`);
+- "71% · plugged in, not charging": power is connected but the battery does not fill up (`plugged: true, charging: false`, agent 0.11.4+). A weak source does this: a PC USB port or a weak power bank cannot cover a headset in use. Android then reports `NOT_CHARGING`. Before 0.11.4 the card showed only "not charging" here (found in the Windows test, 22.11);
+- "71% · not charging": no power.
+
+When power is plugged in or out, the agent sends a heartbeat after 1 s (the status needs a moment to update).
+Statistics ("charge interruptions") still use `charging`, not `plugged`.

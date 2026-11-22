@@ -1,3 +1,4 @@
+import json
 import time
 
 import pytest
@@ -51,6 +52,33 @@ def test_agent_heartbeat_makes_headset_online_with_battery(client):
 
     time.sleep(0.2)
     assert headset(client, creds["headsetId"])["online"] is False
+
+
+def test_plugged_power_is_shown_even_when_not_charging(client):
+    # A weak power source: power is connected, but the battery does not fill up
+    creds = register(client)
+    with client.websocket_connect("/agent") as ws:
+        ws.send_text(hello(creds))
+        ws.receive_json()
+        hb = json.loads(heartbeat(battery=60))
+        hb.update(charging=False, plugged=True)
+        ws.send_text(json.dumps(hb))
+        time.sleep(0.2)
+        h = headset(client, creds["headsetId"])
+        assert h["charging"] is False
+        assert h["plugged"] is True
+
+
+def test_old_agent_without_plugged_field(client):
+    creds = register(client)
+    with client.websocket_connect("/agent") as ws:
+        ws.send_text(hello(creds))
+        ws.receive_json()
+        ws.send_text(heartbeat(battery=60))  # no "plugged" field
+        time.sleep(0.2)
+        h = headset(client, creds["headsetId"])
+        assert h["online"] is True
+        assert h["plugged"] is None
 
 
 def test_wrong_token_is_rejected(client):

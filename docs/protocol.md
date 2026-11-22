@@ -10,7 +10,7 @@ JSON fields are camelCase (`headsetId`), Python fields are snake_case (`headset_
 |---|---|---|
 | `hello` | agent → server | `headsetId`, `token`, `agentVersion`, `androidId` |
 | `welcome` | server → agent | server time, `heartbeatIntervalS`, `guardPkg` (protected game) |
-| `heartbeat` | agent → server, every 5 s | `battery`, `charging`, `temp`, `currentPkg`, `adb`, `sleepDisabled`, `adbTimeoutDisabled`, `guardPkg`, `screenOn`, `controllers` |
+| `heartbeat` | agent → server, every 5 s | `battery`, `charging`, `plugged`, `temp`, `currentPkg`, `adb`, `sleepDisabled`, `adbTimeoutDisabled`, `guardPkg`, `screenOn`, `controllers` |
 | `event` | agent → server | `kind` + `payload`, see below |
 | `apps` | agent → server | installed apps: `package`, `title`, `vr` |
 | `command` | server → agent | `id`, `cmd`, `params`, `ttlS` (default 10) |
@@ -18,6 +18,7 @@ JSON fields are camelCase (`headsetId`), Python fields are snake_case (`headset_
 
 `controllers`: `[{side: "left"|"right", battery, connected}]`. `null` means the agent could not read them.
 `screenOn: false` means the headset is asleep. `null` means an old agent.
+`charging` = the battery is filling up. `plugged` = power is connected (agent 0.11.4+, `null` from older agents). A weak power source gives `plugged: true, charging: false`.
 
 ## Commands
 
@@ -28,7 +29,7 @@ JSON fields are camelCase (`headsetId`), Python fields are snake_case (`headset_
 | `guard` | B | Protection on/off (`{current: true}` = protect the current game) |
 | `set_sleep` | B | Sleep on/off. Still in the protocol, the dashboard does not send it |
 | `request_access` | B | Show the "Allow wireless debugging" dialog again. Does nothing if ADB is already `ready` |
-| `close_game` | C | `force-stop` the game, check `pidof`, show our menu, then protection off |
+| `close_game` | C | No `pkg`: `force-stop` **every** running game (from `pm list packages -3` + `pidof`), check `pidof`, show our menu, then protection off. No game running is not an error. With `pkg`: only that game |
 | `restart_game` | C | `force-stop` + start again, protection stays |
 | `reboot` | C | Check login to adbd, send `ack`, reboot after 1.5 s |
 | `sleep` | C | `input keyevent KEYCODE_SLEEP` (does not trigger restart under protection) |

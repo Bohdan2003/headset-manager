@@ -46,7 +46,7 @@ export function HeadsetCard({ headset: h, now, selected, onToggle, lastCommand }
         <OnlineBadge online={h.online} asleep={h.online && h.screenOn === false} lastSeen={h.lastSeen} now={now} />
       </header>
 
-      <BatteryBar level={h.battery} charging={h.charging} showCharging />
+      <BatteryBar level={h.battery} charging={h.charging} plugged={h.plugged} showCharging />
       {h.controllers.length > 0 && <Controllers controllers={h.controllers} />}
       <CurrentApp pkg={h.currentPkg} online={h.online} apps={h.apps} guardPkg={h.guardPkg} />
       {h.online && h.screenOn === false ? (
@@ -163,6 +163,7 @@ function BatteryBar({
   label = 'Battery',
   level,
   charging,
+  plugged = null,
   off = false,
   title,
   showCharging = false,
@@ -170,19 +171,25 @@ function BatteryBar({
   label?: string
   level: number | null
   charging: boolean | null
+  // Power connected. Can be true while charging is false: a weak power source
+  // does not fill the battery of a headset in use. null = old agent.
+  plugged?: boolean | null
   off?: boolean
   title?: string
   showCharging?: boolean
 }) {
   if (level == null) return <p className="text-sm text-slate-400">{label}: no data</p>
   const tone = off ? 'muted' : batteryTone(level, charging)
+  const power = charging ? ' · charging' : plugged ? ' · plugged in, not charging' : ' · not charging'
+  const powerHint =
+    !charging && plugged ? 'Power is connected, but the battery is not filling up. Use a stronger charger or power bank.' : undefined
   return (
-    <div title={title}>
+    <div title={title ?? powerHint}>
       <div className="mb-1 flex justify-between text-sm">
         <span className="text-slate-600">{label}</span>
         <span className={`font-medium ${TONE_TEXT[tone]}`}>
           {level}%{off ? ' · off' : ''}
-          {showCharging && (charging ? ' · charging' : ' · not charging')}
+          {showCharging && power}
         </span>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-slate-100">

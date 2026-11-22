@@ -142,7 +142,9 @@ class Registry:
                 headset_id, "battery", {"level": hb.battery, "charging": hb.charging, "screenOn": hb.screen_on}
             )
         if view.charging is not None and hb.charging != view.charging:
-            await self.log_event(headset_id, "charging", {"charging": hb.charging, "level": hb.battery})
+            await self.log_event(
+                headset_id, "charging", {"charging": hb.charging, "plugged": hb.plugged, "level": hb.battery}
+            )
         if hb.current_pkg != view.current_pkg:
             await self.log_event(headset_id, "app_change", {"from": view.current_pkg, "to": hb.current_pkg})
         if hb.adb != view.adb:
@@ -152,6 +154,7 @@ class Registry:
 
         view.battery = hb.battery
         view.charging = hb.charging
+        view.plugged = hb.plugged
         view.temp = hb.temp
         view.current_pkg = hb.current_pkg
         view.adb = hb.adb

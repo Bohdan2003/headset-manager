@@ -184,6 +184,7 @@ class AgentService : Service() {
             .put("type", "heartbeat")
             .put("battery", battery?.level ?: 0)
             .put("charging", battery?.charging ?: false)
+            .put("plugged", battery?.plugged ?: JSONObject.NULL)
             .put("temp", battery?.tempC?.toDouble() ?: JSONObject.NULL)
             .put("currentPkg", CurrentApp.pkg ?: JSONObject.NULL)
             .put("adb", adb.status)

@@ -14,7 +14,7 @@ import android.provider.Settings
 import android.view.accessibility.AccessibilityEvent
 
 /** Батарея из системного «липкого» broadcast — для этого не нужны никакие права. */
-data class Battery(val level: Int, val charging: Boolean, val tempC: Float?)
+data class Battery(val level: Int, val charging: Boolean, val plugged: Boolean, val tempC: Float?)
 
 fun readBattery(context: Context): Battery? {
     val i = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED)) ?: return null
@@ -23,8 +23,11 @@ fun readBattery(context: Context): Battery? {
     if (level < 0 || scale <= 0) return null
     val status = i.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
     val charging = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL
+    // Power connected (AC, USB or wireless). A weak source gives status NOT_CHARGING while plugged in,
+    // so "charging" alone shows "not charging" with the cable in.
+    val plugged = i.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) != 0
     val temp = i.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, Int.MIN_VALUE) // в десятых долях °C
-    return Battery(level * 100 / scale, charging, if (temp == Int.MIN_VALUE) null else temp / 10f)
+    return Battery(level * 100 / scale, charging, plugged, if (temp == Int.MIN_VALUE) null else temp / 10f)
 }
 
 /** Таймер ключа ADB выключен (`0`) — иначе Android забудет ключ через 7 дней без подключений. */

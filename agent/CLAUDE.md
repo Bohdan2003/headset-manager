@@ -44,6 +44,10 @@ Note: on Mac git does not see letter case. `.gitignore` has `adbkey*` and `!AdbK
 
 Starting screens from a background service logs `With BAL hardening this activity start would be blocked!`. Allowed today (`BAL_ALLOW_PERMISSION`). Future Android versions may block menu, launch and protection. Check first after a firmware update (`docs/firmware-checklist.md`).
 
+## Build
+
+`JAVA_HOME=/opt/homebrew/opt/openjdk@17 ./gradlew assembleDebug`. The default `java` on this Mac is now JDK 27, and Gradle 8.10 fails with it (the error message is only the Java version, `27.0.1.0.3`).
+
 ## Signing
 
 Signed with the debug key `~/.android/debug.keystore` on the Mac. If it is lost, installed agents can't be updated, only removed and set up again by cable.

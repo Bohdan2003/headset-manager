@@ -12,8 +12,8 @@ android {
         minSdk = 29
         // 32, а не 34: не нужны требования Android 14 к типам foreground-сервисов
         targetSdk = 32
-        versionCode = 21
-        versionName = "0.11.3"
+        versionCode = 22
+        versionName = "0.11.4"
     }
 
     compileOptions {

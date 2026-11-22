@@ -8,6 +8,7 @@ export type Serial = string;
 export type Online = boolean;
 export type Battery = number | null;
 export type Charging = boolean | null;
+export type Plugged = boolean | null;
 export type Temp = number | null;
 export type Currentpkg = string | null;
 export type Adb =
@@ -71,6 +72,7 @@ export interface HeadsetView {
   online: Online;
   battery: Battery;
   charging: Charging;
+  plugged: Plugged;
   temp: Temp;
   currentPkg: Currentpkg;
   adb: Adb;
