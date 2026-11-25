@@ -28,3 +28,5 @@ The code is written (22.11, bugs from the Windows test). Headsets still run 0.11
 ## Log
 
 - 2026-11-25: task created from `docs/status.md`.
+- 2026-11-25: preparation only, no command was sent to a headset. `app-debug.apk` is 0.11.4 (22), same file as `packaging/prebuilt/agent.apk`, sources did not change since `d3ee486`. The Close game script works in a local simulation with fake `pm`, `pidof` and `am` (two games, no game, a game that does not close): this is not a headset check.
+- 2026-11-25: can't check yet. 203 is registered only in the Arena program database (the dev server does not know it), but `dist/Arena.app` still contains 0.11.3, so rebuild it first. The Mac is on 192.168.1.x, headsets connected from 192.168.50.x. No server is running.

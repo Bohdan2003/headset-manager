@@ -12,7 +12,7 @@ Details: `docs/architecture/features/wifi-update.md`. Only headset 203 (`1WMHHA7
 2. **Build.** `cd agent && JAVA_HOME=/opt/homebrew/opt/openjdk@17 ./gradlew assembleDebug`. It must be signed with the same debug key (`~/.android/debug.keystore` on this Mac).
 3. **Which server serves the APK.**
    - Dev server (`./scripts/start.sh`): it serves `agent/app/build/outputs/apk/debug/app-debug.apk` at once.
-   - Arena program: it serves the APK bundled inside. Rebuild the program (`cd server && uv run python ../packaging/build.py`), this also updates `packaging/prebuilt/`. Restarting the program breaks headset connections for a moment: tell the user.
+   - Arena program: it serves the APK bundled inside. Rebuild the program (`cd server && JAVA_HOME=/opt/homebrew/opt/openjdk@17 uv run python ../packaging/build.py`), this also updates `packaging/prebuilt/`. Restarting the program breaks headset connections for a moment: tell the user.
 4. **Check the headset.** It is online, awake, and ADB is `ready`. If it waits for confirmation, ask the user to tap "Always allow on this network".
 5. **Ask the user "yes"**: "I will update the agent on 203 from X to Y over Wi-Fi."
 6. **Start.** The Update button on the Setup tab, or `POST /api/setup/update-wifi` from the server computer.

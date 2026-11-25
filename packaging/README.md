@@ -3,11 +3,12 @@
 ## Mac
 
 ```bash
-cd server && uv run python ../packaging/build.py
+cd server && JAVA_HOME=/opt/homebrew/opt/openjdk@17 uv run python ../packaging/build.py
 ```
 
 Result: `dist/Arena.app`. Needs uv, Node.js, JDK 17 (`JAVA_HOME`), the Android SDK and adb.
 The build updates `packaging/prebuilt/agent.apk`.
+The script checks Java and builds the agent first. If this fails, the old `dist/` stays.
 
 The program is not signed with an Apple certificate. On another Mac, the first start is: right click → Open.
 

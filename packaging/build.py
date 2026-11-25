@@ -1,17 +1,21 @@
 """
-Сборка программы Arena: python packaging/build.py
+Build the Arena program: python packaging/build.py
 
-Mac: dist/Arena.app. Windows: папка dist/Arena с Arena.exe (папка, а не один файл: один .exe
-при каждом запуске распаковывается во временную папку, откуда потом работал бы adb-сервер).
+Mac: dist/Arena.app. Windows: folder dist/Arena with Arena.exe (a folder, not one file: a single .exe
+unpacks itself into a temporary folder on every start, and the adb server would then run from there).
 
-Агент берётся из packaging/prebuilt/agent.apk. На Mac файл обновляется при каждой сборке,
-на Windows и в GitHub Actions (ARENA_PREBUILT_AGENT=1) используется как есть: агент должен быть
-подписан одним ключом, иначе обновить уже установленного агента не получится.
+The agent comes from packaging/prebuilt/agent.apk. On the Mac the file is updated on every build.
+On Windows and in GitHub Actions (ARENA_PREBUILT_AGENT=1) it is used as is: the agent must always be
+signed with the same key, otherwise installed agents can't be updated.
+
+On the Mac, set JAVA_HOME to JDK 17. The agent is built before the old build/ and dist/ are deleted,
+so a wrong Java or a failed agent build keeps the old program.
 """
 
 import io
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -26,6 +30,9 @@ PREBUILT = ROOT / "packaging" / "prebuilt"
 SEP = ";" if sys.platform == "win32" else ":"
 WINDOWS_ADB = "https://dl.google.com/android/repository/platform-tools-latest-windows.zip"
 
+# Android Gradle plugin 8.7 needs Java 17 or newer, Gradle 8.10 runs on Java 23 or older
+JAVA_MIN, JAVA_MAX = 17, 23
+
 sys.path.insert(0, str(SERVER / "src"))
 
 
@@ -34,8 +41,26 @@ def run(cmd: list[str], cwd: Path) -> None:
     subprocess.run(cmd, cwd=cwd, check=True, shell=sys.platform == "win32")
 
 
+def check_java() -> None:
+    """Look at the same Java that gradlew takes: JAVA_HOME, else `java` from PATH."""
+    home = os.environ.get("JAVA_HOME")
+    java = str(Path(home) / "bin" / "java") if home else "java"
+    try:
+        r = subprocess.run([java, "-version"], capture_output=True, text=True)
+    except OSError as e:
+        raise SystemExit(f"Java not found ({java}): set JAVA_HOME to JDK 17") from e
+    found = re.search(r'version "(\d+)', r.stderr + r.stdout)  # java prints the version to stderr
+    if r.returncode != 0 or not found:
+        raise SystemExit(f"Can't read the Java version ({java}): set JAVA_HOME to JDK 17")
+    if not JAVA_MIN <= int(found[1]) <= JAVA_MAX:
+        raise SystemExit(
+            f"Java {found[1]} can't build the agent: set JAVA_HOME to JDK 17, "
+            "for example JAVA_HOME=/opt/homebrew/opt/openjdk@17"
+        )
+
+
 def build_agent() -> None:
-    """Только на Mac: там лежит ключ подписи агента."""
+    """Only on the Mac: the agent signing key is there."""
     from headset_server.paths import read_gradle_version
 
     run(["./gradlew", "assembleDebug", "-q"], ROOT / "agent")
@@ -46,7 +71,7 @@ def build_agent() -> None:
 
 
 def check_prebuilt_agent() -> None:
-    """Готовый APK должен быть той версии, что в коде, иначе в сборку попадёт старый агент."""
+    """The ready APK must have the same version as the code, otherwise the program gets an old agent."""
     from headset_server.paths import read_gradle_version
 
     if not (PREBUILT / "agent.apk").exists():
@@ -73,13 +98,16 @@ def collect_adb(target: Path) -> None:
 
 
 def main() -> None:
+    if sys.platform == "darwin" and not os.environ.get("ARENA_PREBUILT_AGENT"):
+        check_java()
+        build_agent()
+    check_prebuilt_agent()
+
+    # Only now: if something above fails, the old program is still there
     shutil.rmtree(WORK, ignore_errors=True)
     shutil.rmtree(ROOT / "dist", ignore_errors=True)
     resources = WORK / "resources"
 
-    if sys.platform == "darwin" and not os.environ.get("ARENA_PREBUILT_AGENT"):
-        build_agent()
-    check_prebuilt_agent()
     run(["npm", "ci", "--no-audit", "--no-fund"], ROOT / "dashboard")
     run(["npm", "run", "build"], ROOT / "dashboard")
 
