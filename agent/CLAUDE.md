@@ -8,7 +8,7 @@ Package `com.arena.agent`. Version in `app/build.gradle.kts` (`versionName`, `ve
 - Check every package name with `^[a-zA-Z0-9_.]+$` before it goes into a shell command.
 - System packages (`com.oculus.`, `com.meta.`, `com.facebook.`, `com.android.`) can't be closed.
 - Never log private keys or tokens.
-- Do not run `adb` against a headset from a subagent. Build only (`./gradlew assembleDebug`). The main session installs, after the user says "yes".
+- Do not run `adb` against a headset from a subagent. Build only (see Build below). The main session installs, after the user says "yes".
 - Never `am force-stop com.arena.agent` (see root `CLAUDE.md`).
 
 ## How it works
@@ -18,7 +18,7 @@ Package `com.arena.agent`. Version in `app/build.gradle.kts` (`versionName`, `ve
 - Right after start: set sleep to match protection (`prox_close` under protection, else `automation_disable`).
 - Current game: from Accessibility events (`WatcherService`). After an agent restart: from usage statistics, taking the open game if there is one (on Quest the last window is often a Meta panel over the game).
 - Installed apps (`apps`) after connecting. VR apps are marked by category `com.oculus.intent.category.VR`. Needs `<queries>` for `MAIN/LAUNCHER` and for this category.
-- Part B = normal permissions. Part C = `LocalAdb` + `MdnsFinder`, see `docs/features/adb-access.md`.
+- Part B = normal permissions. Part C = `LocalAdb` + `MdnsFinder`, see `docs/architecture/features/adb-access.md`.
 - C commands run in a separate thread.
 
 ## Files (`app/src/main/java/com/arena/agent/`)
@@ -38,11 +38,11 @@ Note: on Mac git does not see letter case. `.gitignore` has `adbkey*` and `!AdbK
 
 ## Feature docs
 
-`docs/features/protection.md`, `power.md`, `controllers.md`, `wifi-update.md`, `adb-access.md`. Device checks: `docs/quest-checks.md`.
+`docs/architecture/features/protection.md`, `power.md`, `controllers.md`, `wifi-update.md`, `adb-access.md`. Device checks: `docs/research/quest-checks.md`.
 
 ## Risk
 
-Starting screens from a background service logs `With BAL hardening this activity start would be blocked!`. Allowed today (`BAL_ALLOW_PERMISSION`). Future Android versions may block menu, launch and protection. Check first after a firmware update (`docs/firmware-checklist.md`).
+Starting screens from a background service logs `With BAL hardening this activity start would be blocked!`. Allowed today (`BAL_ALLOW_PERMISSION`). Future Android versions may block menu, launch and protection. Check first after a firmware update (`docs/research/firmware-checklist.md`).
 
 ## Build
 

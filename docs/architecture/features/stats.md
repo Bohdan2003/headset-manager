@@ -28,8 +28,8 @@ The Statistics tab is about how each headset works: four bar charts, one bar per
 
 ## What we count
 
-By headset and by game: play time, sessions, returns to the game (which games players "escape" from more often), battery wear, connection drops by headset (weak Wi-Fi zones), time from power on to `adb: ready`. **Not by player** (see `decisions.md`).
+By headset and by game: play time, sessions, returns to the game (which games players "escape" from more often), battery wear, connection drops by headset (weak Wi-Fi zones), time from power on to `adb: ready`. **Not by player** (see ADR-0003).
 
 ## Next
 
-Controller battery wear statistics. `controller_battery` events are already written. See `controllers.md`.
+Controller battery wear statistics. `controller_battery` events are already written. See `controllers.md`. Task: T-002.

@@ -7,6 +7,6 @@ Quest shows controller battery only in `dumpsys OVRRemoteService`. Lines look li
 - The server keeps it in memory and writes a `controller_battery` event when the battery of a connected controller changes.
 - Dashboard: a battery bar for each controller, like the headset's. A controller that is off is grey, "· off", with the last known battery. The "Battery < 20%" tile also counts connected controllers.
 
-## Next (priority 1)
+## Next (T-002, priority 1)
 
 Controller battery wear statistics from `controller_battery` events. Server + dashboard only. The agent already sends everything.

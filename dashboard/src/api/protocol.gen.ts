@@ -1,4 +1,4 @@
-/* Сгенерировано из server/schema/live.json (npm run gen:types). Не править руками. */
+/* Generated from server/schema/live.json (npm run gen:types). Do not edit by hand. */
 
 export type Live = LiveSnapshot | LiveHeadset | LiveCommand;
 export type Type = "snapshot";

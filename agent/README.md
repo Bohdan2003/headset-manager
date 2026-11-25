@@ -14,6 +14,6 @@ Headsets accept only an APK with the same signature.
 ## Install
 
 - New headset: by cable, the Install button on the Setup tab in Arena (or `scripts/provision.sh`).
-- Update: over Wi-Fi from the Setup tab, see `../docs/features/wifi-update.md`.
+- Update: over Wi-Fi from the Setup tab, see `../docs/architecture/features/wifi-update.md`.
 
 How it works: `CLAUDE.md` in this folder and `../docs/`.

@@ -25,13 +25,13 @@ FastAPI (REST `/api`, WebSocket `/agent` for agents and `/live` for the dashboar
 | `ws.py` | `WS /agent`: token check, hello, heartbeat. Offline = no heartbeat for 15 s or socket closed |
 | `registry.py` | Headset state in memory + snapshots in the database |
 | `commands.py` | `id`, status `sent → acked/failed/timeout`, TTL ~10 s, `offline` / `asleep` at once |
-| `sessions.py`, `stats.py` | Sessions and statistics, see `docs/features/stats.md` |
+| `sessions.py`, `stats.py` | Sessions and statistics, see `docs/architecture/features/stats.md` |
 | `live.py` | Sends changes to the dashboard |
-| `auth.py` | Dashboard password, see `docs/features/auth.md` |
+| `auth.py` | Dashboard password, see `docs/architecture/features/auth.md` |
 | `setup_tools.py` | Setup tab: install, update, remove. Repeats `scripts/provision.sh` |
 | `api.py`, `db.py`, `config.py`, `paths.py`, `security.py`, `desktop.py` | REST, tables, settings (`HM_*`), data paths, tokens, Arena window |
 
-Protocol and tables: `docs/protocol.md`.
+Protocol and tables: `docs/architecture/protocol.md`.
 
 ## Testing without a headset
 

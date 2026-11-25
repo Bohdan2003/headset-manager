@@ -1,4 +1,4 @@
-/* Сгенерировано из server/schema/rest.json (npm run gen:types). Не править руками. */
+/* Generated from server/schema/rest.json (npm run gen:types). Do not edit by hand. */
 
 export type Rest = AuthStatus | CommandCreate | CommandView[] | Stats | SetupInfo | SetupRequest | WifiUpdateRequest;
 export type Configured = boolean;

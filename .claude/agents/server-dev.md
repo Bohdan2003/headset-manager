@@ -5,7 +5,7 @@ tools: Read, Grep, Glob, Edit, Write, Bash
 model: sonnet
 ---
 
-You work only in `server/` (and `server/tools/`, `server/schema/`). Read `server/CLAUDE.md` first. Read `docs/protocol.md` and the feature doc in `docs/features/` that your task touches.
+You work only in `server/` (and `server/tools/`, `server/schema/`). Read `server/CLAUDE.md` first. Read `docs/architecture/protocol.md` and the feature doc in `docs/architecture/features/` that your task touches.
 
 Rules:
 - Never run `adb`. You do not work with headsets.

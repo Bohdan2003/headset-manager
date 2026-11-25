@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "gen:types": "cd ../server && uv run python tools/export_schema.py && cd ../dashboard && json2ts -i ../server/schema/live.json -o src/api/protocol.gen.ts --bannerComment '/* Сгенерировано из server/schema/live.json (npm run gen:types). Не править руками. */' --additionalProperties false && json2ts -i ../server/schema/rest.json -o src/api/rest.gen.ts --bannerComment '/* Сгенерировано из server/schema/rest.json (npm run gen:types). Не править руками. */' --additionalProperties false"
+    "gen:types": "cd ../server && uv run python tools/export_schema.py && cd ../dashboard && json2ts -i ../server/schema/live.json -o src/api/protocol.gen.ts --bannerComment '/* Generated from server/schema/live.json (npm run gen:types). Do not edit by hand. */' --additionalProperties false && json2ts -i ../server/schema/rest.json -o src/api/rest.gen.ts --bannerComment '/* Generated from server/schema/rest.json (npm run gen:types). Do not edit by hand. */' --additionalProperties false"
   },
   "dependencies": {
     "react": "^19.3.1",

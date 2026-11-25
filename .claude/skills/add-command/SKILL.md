@@ -20,7 +20,7 @@ First decide with the user:
 3. **Tests.** Add tests in `server/tests/test_commands.py`: good params, bad params (`bad_params`), offline, asleep. Run `uv run pytest`.
 4. **Schemas.** `cd server && uv run python tools/export_schema.py`.
 5. **Dashboard.** `cd dashboard && npm run gen:types`. Add the button in `src/components/ActionBar.tsx`, the label in `src/lib/format.ts`. English text. Confirm step for dangerous commands. For C: "available on N of M". `npm run lint && npm run build`.
-6. **Agent.** `agent/.../Commands.kt`: map the name to the prepared action, send `ack` with the right `reason`. C commands run in the C thread and answer `no_adb` without ADB. Raise `versionName` and `versionCode`. `./gradlew assembleDebug`.
-7. **Docs.** Add a row to the command table in `docs/protocol.md`. Update the feature doc and `docs/status.md`.
+6. **Agent.** `agent/.../Commands.kt`: map the name to the prepared action, send `ack` with the right `reason`. C commands run in the C thread and answer `no_adb` without ADB. Raise `versionName` and `versionCode`. `JAVA_HOME=/opt/homebrew/opt/openjdk@17 ./gradlew assembleDebug`.
+7. **Docs (main session).** Add a row to the command table in `docs/architecture/protocol.md`. Update the feature doc, `docs/tasks/BOARD.md` with the task log, and `docs/progress/<today>.md`.
 8. **Review.** Run the `reviewer` role.
-9. **Headset test (main session only).** Write a short test plan for 203. Ask the user "yes" before installing and before each state-changing step. Never 207. Write results in `docs/quest-checks.md`.
+9. **Headset test (main session only).** Write a short test plan for 203. Ask the user "yes" before installing and before each state-changing step. Never 207. Write results in `docs/research/quest-checks.md`.

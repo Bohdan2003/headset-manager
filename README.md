@@ -58,15 +58,18 @@ cd server && HM_ADMIN_TOKEN=dev-admin uv run python tools/fake_agent.py --count 
 | `agent/` | Headset app: Android, Kotlin |
 | `packaging/` | Builds the Arena program for Mac and Windows |
 | `scripts/` | `start.sh` (dev server), `provision.sh` (headset setup by cable) |
-| `docs/` | How things work, decisions, checks on the real headset |
+| `docs/` | Architecture, decisions, tasks, progress, checks on the real headset |
 | `spike/` | Old test app, not used in the product |
 
 Each folder has its own `README.md` with build and run steps.
 
 ## Documentation
 
-- [docs/status.md](docs/status.md): what is done and what is next.
-- [docs/decisions.md](docs/decisions.md): why things are built this way.
-- [docs/protocol.md](docs/protocol.md): messages between headsets, server and dashboard.
-- [docs/features/](docs/features/): one file per feature (protection, power, statistics, updates…).
+- [docs/tasks/BOARD.md](docs/tasks/BOARD.md): tasks and what is next.
+- [docs/progress/](docs/progress/): what happened, day by day.
+- [docs/architecture/overview.md](docs/architecture/overview.md): how the system must be built.
+- [docs/adr/](docs/adr/README.md): why things are built this way.
+- [docs/architecture/protocol.md](docs/architecture/protocol.md): messages between headsets, server and dashboard.
+- [docs/architecture/features/](docs/architecture/features/): one file per feature (protection, power, statistics, updates…).
+- [docs/research/](docs/research/README.md): checks on the real headset.
 - [packaging/README.md](packaging/README.md): how to build the program and make a release.

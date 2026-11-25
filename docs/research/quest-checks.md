@@ -51,8 +51,24 @@ Policy (`dumpsys window policy`): short press `SHORT_PRESS_POWER_GO_TO_SLEEP`, l
 | Hold ~10 s | hardware power off, can't be blocked |
 | Wake over network during sleep | works ~1 min, after ~2 min ping and ADB stop (maybe `wifi_power_save=120`, not checked) |
 
+## Whole features checked on a real headset
+
+- Server, protocol, registry, `/live`, dashboard list and summary tiles.
+- B commands: launch, protection (return to game, sleep, power button), our menu.
+- C commands: close game, restart game, reboot, sleep, power off. (Close game was changed in 0.11.4, not checked again: T-001.)
+- Agent starts after reboot by itself, comes back after Wi-Fi drops.
+- Controller battery in heartbeat and on the dashboard.
+- Statistics: sessions, games, headset health (drops, charge interruptions, battery life).
+- Agent update over Wi-Fi (203: 0.11.2 → 0.11.3 in 6 s).
+- Dashboard login with one password.
+
+The test app `com.arena.adbprobe` on the headset is disabled (`pm disable-user`), not removed.
+
 ## Not checked yet
 
+Tasks: T-001, T-005, T-006, T-007, T-013.
+
+- Agent 0.11.4: `plugged` on a PC USB port, Close game after "launch A, launch B".
 - `adb_allowed_connection_time = 0` really keeps the key (needs 8+ days without connections).
 - The "Allow wireless debugging" dialog when the headset moves to another access point.
 - Auto-click of "Allow" by polling windows on a timer (code is in `spike/adb-probe`).

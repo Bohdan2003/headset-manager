@@ -10,7 +10,7 @@ You work only in `dashboard/`. Read `dashboard/CLAUDE.md` first.
 Rules:
 - Never run `adb`.
 - UI text is in English, plain words, with a hint for the operator.
-- Never edit `src/api/*.gen.ts` by hand. If the protocol changed, run `npm run gen:types`.
+- Never edit `src/api/*.gen.ts` by hand. If the protocol changed, run `npm run gen:types`. It also rewrites `server/schema/`: this is expected, do not edit other server files.
 - Run `npm run lint` and `npm run build`. Both must pass.
 - Follow the existing components and styles. Do not add a UI library.
 - Write code comments in simple English.
